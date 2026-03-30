@@ -1,0 +1,268 @@
+// PayrollPal Malta — AI-Powered Payroll & Tax for Maltese SMEs
+// Fully-managed: AI calculates, submits, optimizes, and reports
+// Compliant with Malta Commissioner for Revenue and MSSS
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User (owner/auth)
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  avatarUrl     String?
+  companies     Company[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([email])
+}
+
+// Company (tenant)
+model Company {
+  id                  String    @id @default(cuid())
+  name                String
+  registrationNumber  String    // Malta Business Registry number
+  taxId               String    // VAT ID
+  address             Json?     // {street, city, postal_code, country}
+  employees           Employee[]
+  payrollRuns         PayrollRun[]
+  userId              String
+  user                User      @relation(fields: [userId], references: [id])
+  stripeCustomerId    String?   // for billing
+  subscriptionTier    Tier      @default(FREE)
+  status              CompanyStatus @default(ACTIVE)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([stripeCustomerId])
+}
+
+enum Tier {
+  FREE
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum CompanyStatus {
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+// Employee
+model Employee {
+  id             String   @id @default(cuid())
+  firstName      String
+  lastName       String
+  email          String
+  iban           String   // Malta IBAN (starting with MT)
+  taxId          String?  // Maltese personal tax ID
+  employmentType EmploymentType // FULL_TIME, PART_TIME, CONTRACT
+  salaryGross    Decimal  @default(0) // Annual gross in EUR
+  startDate      DateTime
+  endDate        DateTime?
+  companyId      String
+  company        Company   @relation(fields: [companyId], references: [id])
+  payrollEntries PayrollEntry[]
+  benefits       Benefit[]
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([companyId])
+  @@index([email])
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERN
+}
+
+// Payroll Run (periodic batch)
+model PayrollRun {
+  id          String   @id @default(cuid())
+  periodStart DateTime // inclusive
+  periodEnd   DateTime // inclusive
+  status      PayrollStatus // DRAFT, CALCULATED, SUBMITTED, PAID
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+  entries     PayrollEntry[]
+  submissionReference String? // FS3/FS5 submission ID from Commissioner
+  submittedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([companyId])
+  @@index([status])
+  @@unique([companyId, periodStart, periodEnd])
+}
+
+enum PayrollStatus {
+  DRAFT      // being prepared
+  CALCULATED // AI calculated, not submitted yet
+  SUBMITTED  // submitted to Commissioner (FS3/FS5)
+  PAID       // salaries transferred
+  CANCELLED
+}
+
+// Individual payroll entry (one per employee per run)
+model PayrollEntry {
+  id            String   @id @default(cuid())
+  payrollRunId  String
+  payrollRun    PayrollRun @relation(fields: [payrollRunId], references: [id])
+  employeeId    String
+  employee      Employee   @relation(fields: [employeeId], references: [id])
+  salaryGross   Decimal    // gross for this period
+  tax           Decimal    // income tax ( Malta brackets )
+  socialSecurity Decimal   // MSSS employee contribution
+  netPay        Decimal    // gross - tax - ss - other deductions
+  totalCost     Decimal    // gross + employer contributions
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  contributions Contribution[]
+
+  @@index([payrollRunId])
+  @@unique([payrollRunId, employeeId])
+}
+
+// Contribution breakdown (MSSS, bonus, allowances, etc.)
+model Contribution {
+  id             String   @id @default(cuid())
+  payrollEntryId String
+  payrollEntry   PayrollEntry @relation(fields: [payrollEntryId], references: [id])
+  type           ContributionType
+  amount         Decimal
+  description    String
+  createdAt      DateTime  @default(now())
+}
+
+enum ContributionType {
+  MSSS_EMPLOYEE     // Employee social security (10%)
+  MSSS_EMPLOYER     // Employer social security (~10.6%)
+  BONUS_TAXABLE     // Bonus (taxed at marginal rate)
+  BONUS_TAX_EXEMPT  // Bonus exempt up to certain limits
+  MEAL_ALLOWANCE    // Meal allowance (exempt if within limits)
+  TRAVEL_ALLOWANCE  // Travel allowance
+  CAR_ALLOWANCE     // Car allowance
+  OTHER_ALLOWANCE   // Misc allowances
+  UNION_FEE         // Union deductions
+  INSURANCE_PREMIUM // Health/insurance deductions
+}
+
+// Benefits (monthly recurring outside payroll)
+model Benefit {
+  id        String   @id @default(cuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+  type      BenefitType
+  value     Decimal
+  effectiveDate DateTime
+  endDate   DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([employeeId])
+}
+
+enum BenefitType {
+  CAR_ALLOWANCE
+  MEAL_ALLOWANCE
+  TRANSPORT
+  MOBILE
+  HOUSING
+  EDUCATION
+  BONUS
+  COMMISSION
+  MEDICAL_INSURANCE
+  PENSION_CONTRIBUTION
+}
+
+// Malta tax brackets (updated annually)
+model TaxBracket {
+  id             String   @id @default(cuid())
+  year           Int      // tax year (2024, 2025, etc.)
+  minIncome      Decimal  // inclusive (EUR)
+  maxIncome      Decimal? // exclusive (null = no upper bound)
+  rate           Decimal  // 0.15 for 15%
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+  // Malta 2024: 0-9,100: 0%; 9,101-14,500: 15%; 14,501-60,000: 25%; >60,000: 35%
+  // Future: AI will auto-update when Commissioner releases new rates
+
+  @@index([year])
+  @@unique([year, minIncome])
+}
+
+// Social Security (MSSS) rates
+model SocialSecurityRate {
+  id             String @id @default(cuid())
+  year           Int
+  employeeRate   Decimal // e.g., 0.10 (10%)
+  employerRate   Decimal // e.g., 0.106 (10.6%)
+  maxWeeklyEarning Decimal // cap on contributions (weekly base)
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+  // Malta: Employee 10%, Employer 10.6% on first 42,994 yearly (2024), different for under 18
+
+  @@index([year])
+  @@unique([year])
+}
+
+// AI Optimizations (system learns from user queries)
+model Optimization {
+  id            String   @id @default(cuid())
+  companyId     String
+  suggestedAt   DateTime @default(now())
+  type          OptimizationType
+  description   String
+  estimatedSaving Decimal
+  status        OptimizationStatus @default(PENDING)
+  appliedAt     DateTime?
+  employeeId    String?  // if employee-specific
+
+  @@index([companyId])
+  @@index([status])
+}
+
+enum OptimizationType {
+  TAX_LOSS_HARVESTING    // shift income to lower bracket
+  BENEFIT_RESTRUCTURE    // salary vs benefit mix (lower tax)
+  BONUS_TIMING           // defer bonus to next tax year
+  PENSION_TOPUP          // recommend top-up for tax relief
+  SSF_CHOICE             // suggest Social Security Fund allocations
+}
+
+enum OptimizationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  APPLIED
+}
+
+// Audit log for compliance
+model AuditEvent {
+  id        String   @id @default(cuid())
+  companyId String
+  userId    String?
+  action    String   // e.g., "payroll_calculated", "submitted_fs3"
+  resource  String?  // e.g., "PayrollRun", "Employee"
+  resourceId String?
+  metadata  Json?     // extra context
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([companyId])
+  @@index([createdAt])
+}
