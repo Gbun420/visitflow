@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     cookies().set('__session', sessionCookie, {
       maxAge: expiresIn,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: request.nextUrl.protocol === 'https:',
       path: '/',
       sameSite: 'lax',
     })
@@ -35,8 +35,10 @@ export async function POST(request: NextRequest) {
       code: error.code,
       stack: error.stack,
     })
-    // Return a 200 with an empty object as per the battle-plan to keep the flow alive
-    return NextResponse.json({}, { status: 200 })
+    return NextResponse.json({ 
+      error: 'Authentication failed', 
+      details: error.message 
+    }, { status: 401 })
   }
 }
 
