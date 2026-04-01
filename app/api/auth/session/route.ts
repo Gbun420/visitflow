@@ -30,16 +30,16 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ status: 'success' })
   } catch (error: any) {
-    console.error('Session API Error DETAILS:', {
+    console.error('🔴 /api/auth/session error:', {
       message: error.message,
       code: error.code,
       stack: error.stack,
-      idTokenProvided: !!request.body
     })
+    // Return a 200 with an error flag to prevent a hard 500 in the UI
     return NextResponse.json({ 
-      error: 'Internal Server Error',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined 
-    }, { status: 500 })
+      status: 'error',
+      message: 'Authentication failed'
+    }, { status: 200 })
   }
 }
 
