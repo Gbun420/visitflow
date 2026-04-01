@@ -1,33 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-import { prisma } from '@/lib/prisma'
 import { calculatePayrollEntry } from '@/lib/payrollCalculator'
+import { requireActiveSubscription } from '@/lib/subscription'
+import { getCompanyIdFromUser } from '@/lib/auth'
 
-async function getCompanyIdFromUser(req: NextRequest): Promise<string | null> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabase = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    global: { headers: { cookie: req.headers.get('cookie') ?? '' } },
-  })
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) return null
-  const appUser = await prisma.user.findUnique({ where: { email: user.email } })
-  if (!appUser || appUser.companies.length === 0) return null
-  const company = appUser.companies[0]
-  if (company.status !== 'ACTIVE') return null
-  return company.id
-}
+export const dynamic = 'force-dynamic'
 
 // POST /api/payroll/calculate
 // Pure calculation endpoint — does NOT persist anything.
 export async function POST(req: NextRequest) {
   try {
-    const companyIdFromUser = await getCompanyIdFromUser(req)
+    const companyIdFromUser = await getCompanyIdFromUser()
     if (!companyIdFromUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const body = await req.json()
-    const { companyId, employeeId, periodStart, periodEnd, salaryGross, benefits, oneTimeAdjustments } = body
+    const { companyId, employeeId, periodStart, periodEnd, salaryGross, benefits, oneTimeAdjustments } = await req.json()
 
     if (companyId !== companyIdFromUser) return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+
+    // Subscription check
+    try {
+      await requireActiveSubscription(companyId)
+    } catch (subErr: any) {
+      return NextResponse.json({ error: subErr.message }, { status: 402 })
+    }
 
     const result = await calculatePayrollEntry({
       companyId,

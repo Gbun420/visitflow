@@ -1,44 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { prisma } from '@/lib/prisma'
+import { getCompanyIdFromUser } from '@/lib/auth'
+import { requireActiveSubscription } from '@/lib/subscription'
 
-async function getCompanyIdFromUser(req: NextRequest): Promise<string | null> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabase = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    global: { headers: { cookie: req.headers.get('cookie') ?? '' } },
-  })
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) return null
-  const appUser = await prisma.user.findUnique({ where: { email: user.email } })
-  if (!appUser || appUser.companies.length === 0) return null
-  const company = appUser.companies[0]
-  if (company.status !== 'ACTIVE') return null
-  return company.id
-}
+export const dynamic = 'force-dynamic'
 
-// GET /api/dashboard/payroll?companyId=...
-export async function GET(req: NextRequest) {
-  const companyId = await getCompanyIdFromUser(req)
-  if (!companyId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+// GET /api/dashboard/payroll
+export async function GET() {
+  const companyId = await getCompanyIdFromUser()
+
+  if (!companyId) return NextResponse.json({ error: 'No company found' }, { status: 404 })
 
   const runs = await prisma.payrollRun.findMany({
     where: { companyId },
     orderBy: { periodStart: 'desc' },
+    include: { entries: true },
   })
-  const runsWithTotals = await Promise.all(runs.map(async (run) => {
-    const entries = await prisma.payrollEntry.findMany({ where: { payrollRunId: run.id } })
-    const totalCost = entries.reduce((sum, e) => sum + Number(e.totalCost), 0)
+  const runsWithTotals = runs.map((run: any) => {
+    const totalCost = run.entries.reduce((sum: number, e: any) => sum + Number(e.totalCost), 0)
     return { ...run, totalCost }
-  }))
+  })
   return NextResponse.json(runsWithTotals)
 }
 
 // POST /api/dashboard/payroll
-// Creates a new payroll run (draft) with empty entries for all active employees
+// Creates a new payroll run (draft) with empty entries for all employees
 export async function POST(req: NextRequest) {
   try {
-    const companyId = await getCompanyIdFromUser(req)
-    if (!companyId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const companyId = await getCompanyIdFromUser()
+    if (!companyId) return NextResponse.json({ error: 'No company found' }, { status: 404 })
+
+    // Subscription check
+    try {
+      await requireActiveSubscription(companyId)
+    } catch (subErr: any) {
+      return NextResponse.json({ error: subErr.message }, { status: 402 })
+    }
 
     const { periodStart, periodEnd } = await req.json()
     if (!periodStart || !periodEnd) {
@@ -54,10 +51,10 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Create placeholder entries for all active employees
+    // Create placeholder entries for all employees
     const employees = await prisma.employee.findMany({ where: { companyId } })
     for (const emp of employees) {
-      const grossPeriod = Number(emp.salaryGross) / 12 // simplistic; later will be recalculated
+      const grossPeriod = Number(emp.salaryGross) / 12
       await prisma.payrollEntry.create({
         data: {
           payrollRunId: run.id,
@@ -70,6 +67,19 @@ export async function POST(req: NextRequest) {
         },
       })
     }
+
+    // Fix #8: Audit Logging
+    await prisma.auditEvent.create({
+      data: {
+        companyId,
+        action: 'payroll_created',
+        resource: 'PayrollRun',
+        resourceId: run.id,
+        metadata: { periodStart, periodEnd },
+        ip: req.headers.get('x-forwarded-for') || '0.0.0.0',
+        userAgent: req.headers.get('user-agent'),
+      },
+    })
 
     return NextResponse.json(run)
   } catch (error: any) {

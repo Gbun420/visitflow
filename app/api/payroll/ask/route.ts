@@ -1,27 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { prisma } from '@/lib/prisma'
-import { openai, generateJSON } from '@/lib/openai'
+import { generateJSON } from '@/lib/openai'
+import { getCompanyIdFromUser } from '@/lib/auth'
 
-async function getCompanyIdFromUser(req: NextRequest): Promise<string | null> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabase = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    global: { headers: { cookie: req.headers.get('cookie') ?? '' } },
-  })
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) return null
-  const appUser = await prisma.user.findUnique({ where: { email: user.email } })
-  if (!appUser || appUser.companies.length === 0) return null
-  const company = appUser.companies[0]
-  if (company.status !== 'ACTIVE') return null
-  return company.id
-}
+export const dynamic = 'force-dynamic'
 
 // POST /api/payroll/ask
 // Body: { question, companyId [, employeeId] }
 export async function POST(req: NextRequest) {
   try {
-    const companyIdFromUser = await getCompanyIdFromUser(req)
+    const companyIdFromUser = await getCompanyIdFromUser()
     if (!companyIdFromUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { question, companyId, employeeId } = await req.json()
@@ -43,7 +31,7 @@ export async function POST(req: NextRequest) {
     const taxBrackets = await prisma.taxBracket.findMany({
       where: { year: currentYear },
       orderBy: { minIncome: 'asc' },
-      take: 5, // only top 5 brackets to control context
+      take: 5,
     })
     const ssRate = await prisma.socialSecurityRate.findFirst({ where: { year: currentYear } })
 
@@ -53,7 +41,8 @@ Answer the user's payroll question for Malta concisely.
 Company: ${company.name}
 ${employeeContext}
 
-Malta Tax (sample brackets): ${JSON.stringify(taxBrackets.map(b => ({ rate: b.rate, min: b.minIncome })))}
+Malta Tax (sample brackets): ${JSON.stringify(taxBrackets.map((b: any) => ({ rate: b.rate, min: b.minIncome })))}
+
 MSSS: Employee ${ssRate?.employeeRate}%, Employer ${ssRate?.employerRate}%, Cap €${ssRate?.maxWeeklyEarning}/wk
 
 Question: "${question}"

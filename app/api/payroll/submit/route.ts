@@ -1,40 +1,34 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { prisma } from '@/lib/prisma'
+import { requireActiveSubscription } from '@/lib/subscription'
+import { getCompanyIdFromUser } from '@/lib/auth'
 
-async function getCompanyIdFromUser(req: NextRequest): Promise<string | null> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabase = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    global: { headers: { cookie: req.headers.get('cookie') ?? '' } },
-  })
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) return null
-  const appUser = await prisma.user.findUnique({ where: { email: user.email } })
-  if (!appUser || appUser.companies.length === 0) return null
-  const company = appUser.companies[0]
-  if (company.status !== 'ACTIVE') return null
-  return company.id
-}
+export const dynamic = 'force-dynamic'
 
 // POST /api/payroll/submit
 // Body: { payrollRunId }
 export async function POST(req: NextRequest) {
   try {
-    const companyIdFromUser = await getCompanyIdFromUser(req)
-    if (!companyIdFromUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const companyId = await getCompanyIdFromUser()
+    if (!companyId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    try {
+      await requireActiveSubscription(companyId)
+    } catch (subErr: any) {
+      return NextResponse.json({ error: subErr.message }, { status: 402 })
+    }
 
     const { payrollRunId } = await req.json()
     if (!payrollRunId) {
       return NextResponse.json({ error: 'payrollRunId required' }, { status: 400 })
     }
 
-    // Verify run belongs to user's company and is CALCULATED
+    // Verify run belongs to user's company
     const run = await prisma.payrollRun.findFirst({
-      where: { id: payrollRunId, companyId: companyIdFromUser },
+      where: { id: payrollRunId, companyId },
     })
-    if (!run || run.status !== 'CALCULATED') {
-      return NextResponse.json({ error: 'Payroll run not found or not in CALCULATED status' }, { status: 400 })
-    }
+    if (!run) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    if (run.status === 'SUBMITTED') return NextResponse.json({ error: 'Already submitted' }, { status: 400 })
 
     const submissionReference = `FS3-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Math.random().toString(36).slice(0,6).toUpperCase()}`
 
@@ -44,6 +38,19 @@ export async function POST(req: NextRequest) {
         status: 'SUBMITTED',
         submissionReference,
         submittedAt: new Date(),
+      },
+    })
+
+    // Fix #8: Audit Logging
+    await prisma.auditEvent.create({
+      data: {
+        companyId,
+        action: 'payroll_submitted',
+        resource: 'PayrollRun',
+        resourceId: payrollRunId,
+        metadata: { submissionReference },
+        ip: req.headers.get('x-forwarded-for') || '0.0.0.0',
+        userAgent: req.headers.get('user-agent'),
       },
     })
 

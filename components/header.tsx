@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import { buttonVariants } from '@/components/ui/button' // We'll create this if needed
 
 export function Header() {
   return (

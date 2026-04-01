@@ -1,7 +1,7 @@
 import OpenAI from 'openai'
 
 export const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || 'dummy_key_for_build',
 })
 
 export async function generateText(prompt: string, system = 'You are a helpful assistant.'): Promise<string> {

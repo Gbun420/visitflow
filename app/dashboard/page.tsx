@@ -1,43 +1,70 @@
-'use client'
-
-import { useUser } from '@supabase/auth-helpers-react'
-import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { prisma } from '@/lib/prisma'
+import { getCurrentUser } from '@/lib/auth'
+import { redirect } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import Link from 'next/link'
 
-export default function Dashboard() {
-  const { user, isLoading } = useUser()
-  const router = useRouter()
-  const [stats, setStats] = useState<any>(null)
+export default async function DashboardPage() {
+  // Phase 4.2: Unified server-side data fetching
+  const user = await getCurrentUser()
+  
+  if (!user) {
+    redirect('/login')
+  }
 
-  useEffect(() => {
-    if (!user) return
-    fetch('/api/dashboard/stats')
-      .then(r => r.json())
-      .then(setStats)
-      .catch(console.error)
-  }, [user])
+  const company = user.company
 
-  useEffect(() => {
-    if (!isLoading && !user) router.push('/login')
-  }, [user, isLoading, router])
+  if (!company) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle>No Company Found</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              You need to create a company before you can use the dashboard.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
 
-  if (isLoading) return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="text-muted-foreground">Loading...</div>
-    </div>
-  )
-  if (!user) return null
+  const companyId = company.id
+
+  const employeeCount = await prisma.employee.count({ where: { companyId } })
+  const payrollRuns = await prisma.payrollRun.findMany({
+    where: { companyId },
+    orderBy: { periodStart: 'desc' },
+    take: 5,
+    include: { entries: true },
+  })
+  const payrollRunCount = await prisma.payrollRun.count({ where: { companyId } })
+  
+  const totalCostAgg = await prisma.payrollEntry.aggregate({
+    where: { payrollRun: { companyId } },
+    _sum: { totalCost: true },
+  })
+  const totalCostValue = totalCostAgg._sum.totalCost ? Number(totalCostAgg._sum.totalCost) : 0
+  const monthlyCost = (totalCostValue / 12).toFixed(2)
+
+  const recentRuns = payrollRuns.map((run: any) => ({
+    id: run.id,
+    periodStart: run.periodStart,
+    periodEnd: run.periodEnd,
+    status: run.status,
+    totalCost: run.entries.reduce((sum: number, entry: any) => sum + Number(entry.totalCost), 0),
+  }))
 
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground">Manage your payroll and employees.</p>
+          <p className="text-muted-foreground">Manage payroll for {company.name}</p>
         </div>
         <div className="space-x-2">
           <Link href="/dashboard/employees/new"><Button>Add Employee</Button></Link>
@@ -51,7 +78,7 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Total Employees</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats?.employeeCount ?? '—'}</div>
+            <div className="text-3xl font-bold">{employeeCount}</div>
           </CardContent>
         </Card>
 
@@ -60,21 +87,21 @@ export default function Dashboard() {
             <CardTitle className="text-sm font-medium text-muted-foreground">Payroll Runs</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{stats?.payrollRunCount ?? '—'}</div>
+            <div className="text-3xl font-bold">{payrollRunCount}</div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Cost</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Monthly Avg Cost</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">€{stats?.monthlyCost ? Number(stats.monthlyCost).toLocaleString() : '—'}</div>
+            <div className="text-3xl font-bold">€{Number(monthlyCost).toLocaleString()}</div>
           </CardContent>
         </Card>
       </div>
 
-      {stats?.recentRuns?.length > 0 && (
+      {recentRuns.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Recent Payroll Runs</CardTitle>
@@ -89,7 +116,7 @@ export default function Dashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {stats.recentRuns.map((run: any) => (
+                {recentRuns.map((run: any) => (
                   <TableRow key={run.id}>
                     <TableCell>
                       {new Date(run.periodStart).toLocaleDateString()} - {new Date(run.periodEnd).toLocaleDateString()}
@@ -99,7 +126,7 @@ export default function Dashboard() {
                         {run.status}
                       </span>
                     </TableCell>
-                    <TableCell className="text-right">€{(run.totalCost || 0).toFixed(2)}</TableCell>
+                    <TableCell className="text-right">€{run.totalCost.toFixed(2)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

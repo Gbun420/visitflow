@@ -1,27 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { prisma } from '@/lib/prisma'
 import { calculatePayrollEntry } from '@/lib/payrollCalculator'
+import { requireActiveSubscription } from '@/lib/subscription'
+import { getCompanyIdFromUser } from '@/lib/auth'
 
-async function getCompanyIdFromUser(req: NextRequest): Promise<string | null> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabase = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    global: { headers: { cookie: req.headers.get('cookie') ?? '' } },
-  })
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) return null
-  const appUser = await prisma.user.findUnique({ where: { email: user.email } })
-  if (!appUser || appUser.companies.length === 0) return null
-  const company = appUser.companies[0]
-  if (company.status !== 'ACTIVE') return null
-  return company.id
+export const dynamic = 'force-dynamic'
+
+function extractIdFromPath(req: NextRequest): string | null {
+  const parts = req.nextUrl.pathname.split('/')
+  return parts[parts.length - 1] || null
 }
 
 // GET /api/dashboard/payroll/[id] — returns run + entries with employee names
 export async function GET(req: NextRequest) {
-  const { id } = req.params as { id: string }
-  const companyId = await getCompanyIdFromUser(req)
-  if (!companyId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const id = extractIdFromPath(req)
+  if (!id) return NextResponse.json({ error: 'Missing payroll run ID' }, { status: 400 })
+  const companyId = await getCompanyIdFromUser()
+  if (!companyId) return NextResponse.json({ error: 'No company found' }, { status: 404 })
 
   const run = await prisma.payrollRun.findFirst({
     where: { id, companyId },
@@ -33,9 +28,17 @@ export async function GET(req: NextRequest) {
 
 // POST /api/dashboard/payroll/[id]/calculate — recalc all entries using AI
 export async function POST(req: NextRequest) {
-  const { id } = req.params as { id: string }
-  const companyId = await getCompanyIdFromUser(req)
-  if (!companyId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const id = extractIdFromPath(req)
+  if (!id) return NextResponse.json({ error: 'Missing payroll run ID' }, { status: 400 })
+  const companyId = await getCompanyIdFromUser()
+
+  if (!companyId) return NextResponse.json({ error: 'No company found' }, { status: 404 })
+
+  try {
+    await requireActiveSubscription(companyId)
+  } catch (subErr: any) {
+    return NextResponse.json({ error: subErr.message }, { status: 402 })
+  }
 
   const run = await prisma.payrollRun.findFirst({
     where: { id, companyId },
@@ -53,7 +56,7 @@ export async function POST(req: NextRequest) {
         periodStart: run.periodStart,
         periodEnd: run.periodEnd,
         salaryGross: Number(emp.salaryGross),
-        benefits: emp.benefits,
+        benefits: [], // not implemented yet
         oneTimeAdjustments: [],
       })
 

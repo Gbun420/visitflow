@@ -1,25 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
 import { prisma } from '@/lib/prisma'
+import { getCompanyIdFromUser } from '@/lib/auth'
 
-async function getCompanyIdFromUser(req: NextRequest): Promise<string | null> {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const supabase = createClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
-    global: { headers: { cookie: req.headers.get('cookie') ?? '' } },
-  })
-  const { data: { user }, error } = await supabase.auth.getUser()
-  if (error || !user) return null
-  const appUser = await prisma.user.findUnique({ where: { email: user.email } })
-  if (!appUser || appUser.companies.length === 0) return null
-  const company = appUser.companies[0]
-  if (company.status !== 'ACTIVE') return null
-  return company.id
-}
+export const dynamic = 'force-dynamic'
 
-// GET /api/dashboard/employees?companyId=...
-export async function GET(req: NextRequest) {
-  const companyId = await getCompanyIdFromUser(req)
-  if (!companyId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+// GET /api/dashboard/employees
+export async function GET() {
+  const companyId = await getCompanyIdFromUser()
+  if (!companyId) return NextResponse.json({ error: 'No company found' }, { status: 404 })
+
   const employees = await prisma.employee.findMany({ where: { companyId } })
   return NextResponse.json(employees)
 }
@@ -27,10 +16,10 @@ export async function GET(req: NextRequest) {
 // POST /api/dashboard/employees
 export async function POST(req: NextRequest) {
   try {
-    const companyId = await getCompanyIdFromUser(req)
-    if (!companyId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const companyId = await getCompanyIdFromUser()
+    if (!companyId) return NextResponse.json({ error: 'No company found' }, { status: 404 })
 
-    const { firstName, lastName, email, iban, taxId, employmentType, salaryGross, startDate } = await req.json()
+    const { firstName, lastName, email, iban, taxId, employmentType, salaryGross, startDate } = await requestBody(req)
     const emp = await prisma.employee.create({
       data: {
         firstName,
@@ -53,12 +42,11 @@ export async function POST(req: NextRequest) {
 // DELETE /api/dashboard/employees
 export async function DELETE(req: NextRequest) {
   try {
-    const companyId = await getCompanyIdFromUser(req)
-    if (!companyId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const companyId = await getCompanyIdFromUser()
+    if (!companyId) return NextResponse.json({ error: 'No company found' }, { status: 404 })
 
     const { id } = await req.json()
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 })
-    // Ensure employee belongs to company
     const emp = await prisma.employee.findFirst({ where: { id, companyId } })
     if (!emp) return NextResponse.json({ error: 'Not found or access denied' }, { status: 404 })
     await prisma.employee.delete({ where: { id } })
@@ -66,4 +54,8 @@ export async function DELETE(req: NextRequest) {
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
+}
+
+async function requestBody(req: NextRequest) {
+  return await req.json()
 }

@@ -5,7 +5,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function NewEmployeePage() {
@@ -92,7 +92,9 @@ export default function NewEmployeePage() {
               <div className="space-y-2">
                 <Label htmlFor="employmentType">Employment Type</Label>
                 <Select value={form.employmentType} onValueChange={(v) => handleSelectChange('employmentType', v)}>
-                  <SelectTrigger><SelectValue placeholder="Select type" /></SelectTrigger>
+                  <SelectTrigger id="employmentType">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="FULL_TIME">Full Time</SelectItem>
                     <SelectItem value="PART_TIME">Part Time</SelectItem>
