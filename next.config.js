@@ -1,4 +1,25 @@
 /** @type {import('next').NextConfig} */
+const isProd = process.env.NODE_ENV === "production";
+const isVercelPreview = process.env.VERCEL_ENV === "preview";
+
+const buildCsp = () => {
+  const directives = [
+    "default-src 'self'",
+    `script-src 'self' 'unsafe-inline' 'unsafe-eval'${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
+    "style-src 'self' 'unsafe-inline'",
+    `font-src 'self' https://r2cdn.perplexity.ai${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
+    "img-src 'self' blob: data: https:",
+    `connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
+    `frame-src 'self'${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
+    "frame-ancestors 'none'",
+    "object-src 'none'",
+    "base-uri 'self'",
+    "report-uri /api/csp-report",
+  ];
+
+  return directives.join("; ");
+};
+
 const nextConfig = {
   experimental: {
     serverComponentsExternalPackages: ["@prisma/client"],
@@ -13,39 +34,13 @@ const nextConfig = {
   },
   output: "standalone",
   async headers() {
-    const isProd = process.env.NODE_ENV === "production";
-    const isVercelPreview = process.env.VERCEL_ENV === "preview";
-
-    const cspDirectives = [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-      "style-src 'self' 'unsafe-inline'",
-      "font-src 'self' https://r2cdn.perplexity.ai",
-      "img-src 'self' blob: data: https:",
-      "connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com",
-      "frame-src 'self'",
-      "frame-ancestors 'none'",
-      "object-src 'none'",
-      "base-uri 'self'",
-    ];
-
-    // Add Vercel Live feedback and fonts ONLY in preview/dev, NOT in production
-    if (!isProd || isVercelPreview) {
-      cspDirectives[1] += " https://vercel.live"; // script-src
-      cspDirectives[3] += " https://vercel.live"; // font-src
-      cspDirectives[5] += " https://vercel.live"; // connect-src
-      cspDirectives[6] += " https://vercel.live"; // frame-src
-    }
-
-    const cspValue = cspDirectives.join("; ");
-
     return [
       {
         source: "/(.*)",
         headers: [
           {
             key: "Content-Security-Policy",
-            value: cspValue,
+            value: buildCsp(),
           },
           {
             key: "Strict-Transport-Security",
@@ -69,7 +64,11 @@ const nextConfig = {
           },
           {
             key: "Access-Control-Allow-Origin",
-            value: "https://visitflow-lovat.vercel.app", // Restricted CORS
+            value: isProd ? "https://visitflow-lovat.vercel.app" : "*",
+          },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=3600, stale-while-revalidate=86400",
           },
           {
             key: "Cross-Origin-Opener-Policy",

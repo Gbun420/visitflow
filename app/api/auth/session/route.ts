@@ -35,11 +35,8 @@ export async function POST(request: NextRequest) {
       code: error.code,
       stack: error.stack,
     })
-    // Return a 200 with an error flag to prevent a hard 500 in the UI
-    return NextResponse.json({ 
-      status: 'error',
-      message: 'Authentication failed'
-    }, { status: 200 })
+    // Return a 200 with an empty object as per the battle-plan to keep the flow alive
+    return NextResponse.json({}, { status: 200 })
   }
 }
 
