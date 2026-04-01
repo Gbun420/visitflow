@@ -30,8 +30,16 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ status: 'success' })
   } catch (error: any) {
-    console.error('Session API Error:', error)
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 })
+    console.error('Session API Error DETAILS:', {
+      message: error.message,
+      code: error.code,
+      stack: error.stack,
+      idTokenProvided: !!request.body
+    })
+    return NextResponse.json({ 
+      error: 'Internal Server Error',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+    }, { status: 500 })
   }
 }
 
