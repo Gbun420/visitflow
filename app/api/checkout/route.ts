@@ -3,6 +3,7 @@ import { stripe, tierToPriceId } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { Tier } from '@prisma/client'
 import { getCurrentUser } from '@/lib/auth'
+import { resolvePublicUrl } from '@/lib/url-resolver'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,17 +13,10 @@ export const dynamic = 'force-dynamic'
 export async function POST(req: NextRequest) {
   try {
     const appUser = await getCurrentUser()
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/$/, '')
+    const appUrl = resolvePublicUrl()
 
     if (!appUser?.company) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    if (!appUrl) {
-      return NextResponse.json(
-        { error: 'NEXT_PUBLIC_APP_URL is not configured' },
-        { status: 500 }
-      )
     }
 
     const company = appUser.company
@@ -66,6 +60,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ url: session_stripe.url })
   } catch (err: any) {
     console.error('Checkout error:', err)
-    return NextResponse.json({ error: err.message }, { status: 500 })
+    return NextResponse.json({ error: 'Unable to start checkout right now' }, { status: 500 })
   }
 }

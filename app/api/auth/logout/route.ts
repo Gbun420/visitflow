@@ -1,7 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { resolvePublicUrl } from '@/lib/url-resolver'
 
-export async function POST(request: Request) {
+export async function POST() {
   const supabase = createClient()
 
   // 1. Log out from Supabase (clears server-side and browser sessions)
@@ -12,8 +13,7 @@ export async function POST(request: Request) {
   }
 
   // 2. Redirect to login
-  const url = new URL(request.url)
-  return NextResponse.redirect(new URL('/login', url.origin), {
+  return NextResponse.redirect(new URL('/login', resolvePublicUrl()), {
     status: 303, // See Other (standard for POST-redirect)
   })
 }

@@ -158,7 +158,7 @@ OPENAI_API_KEY=sk-...
 NEXT_PUBLIC_APP_URL=https://visitflow-lovat.vercel.app
 ```
 
-`NEXT_PUBLIC_APP_URL` is used for checkout success/cancel URLs and Supabase auth email redirects.
+`NEXT_PUBLIC_APP_URL` is an optional fallback for server-generated URLs. Client auth flows use the browser origin first, and server routes prefer the live Vercel host.
 
 ### 5.3 Build Settings
 - Build command: `npm run build` (default)
@@ -184,7 +184,7 @@ For the current deployment, keep every route on the same Vercel host.
 Back to Supabase Auth → keep the live domain and callback on `visitflow-lovat.vercel.app`:
 - **Site URL**: `https://visitflow-lovat.vercel.app`
 - **Redirect URLs**: `https://visitflow-lovat.vercel.app/auth/callback`, `https://visitflow-lovat.vercel.app/auth/confirm`
-- **Email redirect target in app**: use `/auth/callback` for Google OAuth and `/auth/confirm` for signup confirmation
+- **Email redirect target in app**: use `/auth/callback` for Google OAuth, signup confirmation, and password reset. `/auth/confirm` remains a compatibility alias.
 
 ---
 

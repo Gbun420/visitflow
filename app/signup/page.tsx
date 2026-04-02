@@ -8,6 +8,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getPublicAppUrl } from '@/lib/public-url'
+import {
+  buildVerifyEmailPath,
+  getEmailDeliveryIssueMessage,
+  isEmailDeliveryBlockedError,
+} from '@/lib/auth/confirmation'
 import { UserPlus } from 'lucide-react'
 
 export default function SignupPage() {
@@ -18,7 +23,6 @@ export default function SignupPage() {
   const [confirm, setConfirm] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -32,20 +36,26 @@ export default function SignupPage() {
     }
 
     try {
-      const confirmUrl = `${getPublicAppUrl()}/auth/confirm`
+      const callbackUrl = `${getPublicAppUrl()}/auth/callback`
 
-      const { error: signupError } = await supabase.auth.signUp({
+      const { data, error: signupError } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: confirmUrl,
+          emailRedirectTo: callbackUrl,
         },
       })
 
       if (signupError) {
-        setError(signupError.message)
+        setError(
+          isEmailDeliveryBlockedError(signupError)
+            ? getEmailDeliveryIssueMessage(signupError)
+            : 'Unable to create the account. Please try again.'
+        )
+      } else if (data.session) {
+        router.replace('/dashboard')
       } else {
-        setSuccess(true)
+        router.replace(buildVerifyEmailPath(email))
       }
     } catch (err: any) {
       console.error("Signup error:", err)
@@ -53,26 +63,6 @@ export default function SignupPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  if (success) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background p-4">
-        <Card className="w-full max-w-md shadow-lg border-2">
-          <CardHeader>
-            <CardTitle className="text-2xl font-bold text-center">Check your email</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-center text-sm text-muted-foreground">
-              We&apos;ve sent a confirmation link to <strong>{email}</strong>. Please check your inbox and follow the instructions to complete your registration.
-            </p>
-            <Button className="w-full py-6 font-semibold" onClick={() => router.push('/login')}>
-              Back to Login
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    )
   }
 
   return (

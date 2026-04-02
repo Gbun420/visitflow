@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { generateJSON } from '@/lib/openai'
 import { getCompanyIdFromUser } from '@/lib/auth'
+import { buildEmployeePromptContext } from '@/lib/payroll/employee-context'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,8 +24,9 @@ export async function POST(req: NextRequest) {
 
     let employeeContext = ''
     if (employeeId) {
-      const emp = await prisma.employee.findUnique({ where: { id: employeeId } })
-      if (emp) employeeContext = `Employee: ${emp.firstName} ${emp.lastName}, Gross: €${emp.salaryGross}/yr, Type: ${emp.employmentType}`
+      const emp = await prisma.employee.findFirst({ where: { id: employeeId, companyId } })
+      const context = buildEmployeePromptContext(emp, companyId)
+      if (context) employeeContext = context
     }
 
     const currentYear = new Date().getFullYear()
@@ -65,6 +67,6 @@ Respond as JSON exactly:
     return NextResponse.json(result)
   } catch (error: any) {
     console.error('Payroll ask error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Unable to answer payroll question right now' }, { status: 500 })
   }
 }

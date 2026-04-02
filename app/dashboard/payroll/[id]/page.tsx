@@ -1,19 +1,24 @@
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
 import { redirect, notFound } from 'next/navigation'
+import { getAuthenticatedLandingPath } from '@/lib/navigation'
 import { PayrollDetailView } from '@/components/payroll-detail-view'
 
 export default async function PayrollRunDetailPage({ params }: { params: { id: string } }) {
   const user = await getCurrentUser()
-  
-  if (!user) {
-    redirect('/login')
+  const destination = getAuthenticatedLandingPath(user)
+  if (destination !== '/dashboard') {
+    redirect(destination)
+  }
+
+  if (!user.company) {
+    redirect('/setup/company')
   }
 
   const run = await prisma.payrollRun.findFirst({
     where: { 
       id: params.id,
-      companyId: user.company?.id
+      companyId: user.company.id
     },
   })
 
@@ -23,7 +28,7 @@ export default async function PayrollRunDetailPage({ params }: { params: { id: s
 
   const entries = await prisma.payrollEntry.findMany({
     where: { payrollRunId: run.id },
-    include: { employee: true },
+    include: { employee: { select: { firstName: true, lastName: true } } },
     orderBy: { employee: { lastName: 'asc' } }
   })
 

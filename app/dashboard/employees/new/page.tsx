@@ -34,9 +34,20 @@ export default function NewEmployeePage() {
     e.preventDefault()
     setSaving(true)
     const meRes = await fetch('/api/dashboard/me')
+    if (meRes.status === 401) {
+      router.replace('/login')
+      setSaving(false)
+      return
+    }
+    if (meRes.status === 404) {
+      router.replace('/setup/company')
+      setSaving(false)
+      return
+    }
+
     const { companyId } = await meRes.json()
     if (!companyId) {
-      alert('No company found')
+      router.replace('/setup/company')
       setSaving(false)
       return
     }

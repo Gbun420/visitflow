@@ -1,5 +1,6 @@
-import { createServerClient } from "@supabase/ssr"
-import { type NextRequest, NextResponse } from "next/server"
+import { createServerClient } from '@supabase/ssr'
+import { type NextRequest, NextResponse } from 'next/server'
+import { resolvePublicUrl } from '@/lib/url-resolver'
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({
@@ -42,15 +43,13 @@ export async function updateSession(request: NextRequest) {
 
   // If no user and trying to access protected route -> login
   if (!user && isProtectedRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/login"
+    const url = new URL('/login', resolvePublicUrl())
     return NextResponse.redirect(url)
   }
 
   // If user and trying to access login/signup -> dashboard
   if (user && isAuthRoute) {
-    const url = request.nextUrl.clone()
-    url.pathname = "/dashboard"
+    const url = new URL('/dashboard', resolvePublicUrl())
     return NextResponse.redirect(url)
   }
 

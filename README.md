@@ -91,7 +91,7 @@ visitflow/
    - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
    - `STRIPE_PRICE_BASIC`, `STRIPE_PRICE_PRO`, `STRIPE_PRICE_ENTERPRISE`
    - `OPENAI_API_KEY`
-   - `NEXT_PUBLIC_APP_URL` (canonical app URL used for checkout and auth redirects; e.g., http://localhost:3000 or https://visitflow-lovat.vercel.app)
+   - `NEXT_PUBLIC_APP_URL` (optional fallback app URL for server-generated links; the browser origin is preferred for auth flows, and the live Vercel host is preferred on the server)
 
 3. **Database**
    ```bash
@@ -169,7 +169,7 @@ visitflow/
 5. Deploy!
 
 ### Important
-- Set `NEXT_PUBLIC_APP_URL` to your live domain so signup confirmation emails and checkout redirects resolve to production
+- Keep `NEXT_PUBLIC_APP_URL` only as a fallback; signup/reset emails and checkout redirects resolve from the live request origin or Vercel host first
 - Configure Stripe webhook endpoint to point to live URL (use Stripe CLI locally for testing)
 - Enable Supabase Auth with email + OAuth as needed
 

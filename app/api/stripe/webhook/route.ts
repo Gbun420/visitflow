@@ -75,6 +75,22 @@ export async function POST(req: NextRequest) {
         subscriptionCancelAtPeriodEnd: cancelAtPeriodEnd,
       },
     })
+
+    await prisma.auditEvent.create({
+      data: {
+        companyId: company.id,
+        action: `subscription_${eventType.split('.').pop()}`,
+        resource: 'Subscription',
+        resourceId: stripeSubscriptionId,
+        metadata: {
+          status: mappedStatus,
+          tier,
+          cancelAtPeriodEnd,
+        },
+        ip: 'stripe-webhook',
+        userAgent: 'stripe-webhook',
+      },
+    })
   }
 
   return NextResponse.json({ ok: true })

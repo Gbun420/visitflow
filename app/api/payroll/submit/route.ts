@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { requireActiveSubscription } from '@/lib/subscription'
-import { getCompanyIdFromUser, requireMfa } from '@/lib/auth'
+import { getCompanyIdFromUser } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,11 +9,6 @@ export const dynamic = 'force-dynamic'
 // Body: { payrollRunId }
 export async function POST(req: NextRequest) {
   try {
-    const hasMfa = await requireMfa()
-    if (!hasMfa) {
-      return NextResponse.json({ error: 'Multi-Factor Authentication (MFA) is required for this operation.' }, { status: 403 })
-    }
-
     const companyId = await getCompanyIdFromUser()
     if (!companyId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
@@ -66,6 +61,6 @@ export async function POST(req: NextRequest) {
     })
   } catch (error: any) {
     console.error('Submit error:', error)
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    return NextResponse.json({ error: 'Unable to submit payroll right now' }, { status: 500 })
   }
 }

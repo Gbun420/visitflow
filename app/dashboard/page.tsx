@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
+import { getAuthenticatedLandingPath } from '@/lib/navigation'
 import { redirect } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -7,30 +8,15 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import Link from 'next/link'
 
 export default async function DashboardPage() {
-  // Phase 4.2: Unified server-side data fetching
   const user = await getCurrentUser()
-  
-  if (!user) {
-    redirect('/login')
+  const destination = getAuthenticatedLandingPath(user)
+  if (destination !== '/dashboard') {
+    redirect(destination)
   }
 
   const company = user.company
-
   if (!company) {
-    return (
-      <div className="flex items-center justify-center h-[calc(100vh-200px)]">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle>No Company Found</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              You need to create a company before you can use the dashboard.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    )
+    redirect('/setup/company')
   }
 
   const companyId = company.id

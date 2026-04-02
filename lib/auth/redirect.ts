@@ -1,6 +1,7 @@
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { NextResponse, type NextRequest } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { resolvePublicUrl, resolveSafeNextPath } from '../url-resolver.ts'
 
 const EMAIL_OTP_TYPES: EmailOtpType[] = [
   'signup',
@@ -10,18 +11,6 @@ const EMAIL_OTP_TYPES: EmailOtpType[] = [
   'email_change',
   'email',
 ]
-
-function getSafeNextPath(value: string | null, fallback: string) {
-  if (!value) {
-    return fallback
-  }
-
-  if (!value.startsWith('/') || value.startsWith('//')) {
-    return fallback
-  }
-
-  return value
-}
 
 function parseEmailOtpType(value: string | null): EmailOtpType | null {
   if (!value) {
@@ -33,21 +22,13 @@ function parseEmailOtpType(value: string | null): EmailOtpType | null {
     : null
 }
 
-export function buildAuthRedirectUrl(request: NextRequest, pathname: string) {
-  const forwardedHost = request.headers.get('x-forwarded-host')
-  const origin =
-    process.env.NODE_ENV === 'development'
-      ? request.nextUrl.origin
-      : forwardedHost
-        ? `https://${forwardedHost}`
-        : request.nextUrl.origin
-
-  return new URL(pathname, origin)
+export function buildAuthRedirectUrl(pathname: string) {
+  return new URL(pathname, resolvePublicUrl())
 }
 
 export async function completeAuthRedirect(request: NextRequest) {
   const { searchParams } = new URL(request.url)
-  const next = getSafeNextPath(searchParams.get('next'), '/dashboard')
+  const next = resolveSafeNextPath(searchParams.get('next'), '/dashboard')
   const code = searchParams.get('code')
   const tokenHash = searchParams.get('token_hash')
   const emailOtpType = parseEmailOtpType(searchParams.get('type')) ?? 'email'
@@ -57,7 +38,7 @@ export async function completeAuthRedirect(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error) {
-      return NextResponse.redirect(buildAuthRedirectUrl(request, next))
+      return NextResponse.redirect(buildAuthRedirectUrl(next))
     }
   }
 
@@ -68,11 +49,13 @@ export async function completeAuthRedirect(request: NextRequest) {
     })
 
     if (!error) {
-      return NextResponse.redirect(buildAuthRedirectUrl(request, next))
+      return NextResponse.redirect(buildAuthRedirectUrl(next))
     }
   }
 
   return NextResponse.redirect(
-    buildAuthRedirectUrl(request, '/auth/auth-code-error')
+    buildAuthRedirectUrl('/auth/auth-code-error')
   )
 }
+
+export { resolveSafeNextPath }

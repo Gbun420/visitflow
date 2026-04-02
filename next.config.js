@@ -8,7 +8,7 @@ const buildCsp = () => {
   const directives = [
     "default-src 'self'",
     `script-src 'self' 'unsafe-inline'${isLocal ? " 'unsafe-eval'" : ""}${!isProd || isVercelPreview ? " https://vercel.live" : ""} https://js.stripe.com`,
-    `script-src-elem 'self' 'unsafe-inline'${!isProd || isVercelPreview ? " https://vercel.live" : ""} https://js.stripe.com`,
+    `script-src-elem 'self' 'unsafe-inline'${!isProd || isVercelPreview ? " https://vercel.live" : " https://vercel.live"} https://js.stripe.com`,
     "style-src 'self' 'unsafe-inline'",
     `font-src 'self' https://r2cdn.perplexity.ai${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
     "img-src 'self' blob: data: https:",

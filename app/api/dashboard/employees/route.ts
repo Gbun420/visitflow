@@ -67,9 +67,23 @@ export async function POST(req: NextRequest) {
       }
     })
 
-    return NextResponse.json(emp)
+    return NextResponse.json({
+      employee: {
+        id: emp.id,
+        firstName: emp.firstName,
+        lastName: emp.lastName,
+        email: emp.email,
+        employmentType: emp.employmentType,
+        salaryGross: emp.salaryGross,
+        startDate: emp.startDate,
+        endDate: emp.endDate,
+        createdAt: emp.createdAt,
+        updatedAt: emp.updatedAt,
+      },
+    })
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 })
+    console.error('Employee create error:', e)
+    return NextResponse.json({ error: 'Unable to create employee right now' }, { status: 500 })
   }
 }
 
@@ -101,7 +115,8 @@ export async function DELETE(req: NextRequest) {
 
     return NextResponse.json({ success: true })
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 })
+    console.error('Employee delete error:', e)
+    return NextResponse.json({ error: 'Unable to delete employee right now' }, { status: 500 })
   }
 }
 

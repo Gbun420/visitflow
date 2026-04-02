@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(run)
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+    console.error('Payroll list/create error:', error)
+    return NextResponse.json({ error: 'Unable to load payroll right now' }, { status: 500 })
   }
 }

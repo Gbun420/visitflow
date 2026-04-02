@@ -8,7 +8,13 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getPublicAppUrl } from '@/lib/public-url'
+import {
+  getEmailDeliveryIssueMessage,
+  isEmailConfirmationRequiredError,
+  isEmailDeliveryBlockedError,
+} from '@/lib/auth/confirmation'
 import { LogIn } from 'lucide-react'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -17,11 +23,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showRecoveryActions, setShowRecoveryActions] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendMessage, setResendMessage] = useState<string | null>(null)
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError(null)
+    setResendMessage(null)
+    setShowRecoveryActions(false)
 
     try {
       const { error: loginError } = await supabase.auth.signInWithPassword({
@@ -30,7 +41,13 @@ export default function LoginPage() {
       })
 
       if (loginError) {
-        setError(loginError.message)
+        if (isEmailConfirmationRequiredError(loginError)) {
+          setError('Unable to sign in. Your account may still need email confirmation.')
+        } else {
+          setError('Unable to sign in. Please check your credentials and try again.')
+        }
+
+        setShowRecoveryActions(true)
       } else {
         router.push('/dashboard')
         router.refresh()
@@ -40,6 +57,43 @@ export default function LoginPage() {
       setError("An unexpected error occurred. Please try again.")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleResendConfirmation = async () => {
+    const normalizedEmail = email.trim()
+
+    if (!normalizedEmail) {
+      setResendMessage('Enter your email address first.')
+      return
+    }
+
+    setResendLoading(true)
+    setResendMessage(null)
+
+    try {
+      const callbackUrl = `${getPublicAppUrl()}/auth/callback`
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email: normalizedEmail,
+        options: {
+          emailRedirectTo: callbackUrl,
+        },
+      })
+
+      if (resendError) {
+        setResendMessage(
+          isEmailDeliveryBlockedError(resendError)
+            ? getEmailDeliveryIssueMessage(resendError)
+            : 'Unable to resend the confirmation email right now. Please try again.'
+        )
+      } else {
+        setResendMessage('A new confirmation email has been sent.')
+      }
+    } catch {
+      setResendMessage('Unable to resend the confirmation email right now. Please try again.')
+    } finally {
+      setResendLoading(false)
     }
   }
 
@@ -58,11 +112,11 @@ export default function LoginPage() {
       })
 
       if (googleError) {
-        setError(googleError.message)
+        setError('Google sign-in failed. Please try again.')
       }
     } catch (err: any) {
       console.error("Google login error:", err)
-      setError("Google login failed.")
+      setError("Google sign-in failed. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -101,7 +155,9 @@ export default function LoginPage() {
             <div className="grid gap-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <a href="/forgot-password" title="Forgot Password" className="text-xs text-muted-foreground hover:underline">Forgot password?</a>
+                <Link href="/forgot-password" title="Forgot Password" className="text-xs text-muted-foreground hover:underline">
+                  Forgot password?
+                </Link>
               </div>
               <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required autoComplete="current-password" className="py-5" />
             </div>
@@ -119,8 +175,30 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
+          {showRecoveryActions && (
+            <div className="space-y-3 rounded-md border border-border/60 bg-muted/30 p-4 text-sm">
+              <p className="text-center text-muted-foreground">
+                Didn&apos;t get a confirmation email? Send a fresh one to the email address you entered.
+              </p>
+              {resendMessage && (
+                <div className="text-center text-sm text-muted-foreground">{resendMessage}</div>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full py-6 font-semibold"
+                onClick={handleResendConfirmation}
+                disabled={resendLoading}
+              >
+                {resendLoading ? 'Sending confirmation email...' : 'Send confirmation email'}
+              </Button>
+            </div>
+          )}
           <div className="text-center text-sm">
-            Don&apos;t have an account? <a href="/signup" className="underline font-medium hover:text-primary transition-colors">Sign up</a>
+            Don&apos;t have an account?{' '}
+            <Link href="/signup" className="underline font-medium hover:text-primary transition-colors">
+              Sign up
+            </Link>
           </div>
         </CardContent>
       </Card>
