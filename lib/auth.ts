@@ -63,3 +63,27 @@ export async function getCompanyFromAuth(): Promise<{ companyId: string; company
   if (!user || !user.company) return null
   return { companyId: user.company.id, company: user.company }
 }
+
+/**
+ * Validates that the current user has authenticated with a second factor (MFA)
+ * Throws an error or returns false if MFA is missing or invalid.
+ */
+export async function requireMfa(): Promise<boolean> {
+  const sessionCookie = cookies().get('__session')?.value
+  if (!sessionCookie) return false
+
+  try {
+    const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true)
+    
+    // Check if the sign_in_second_factor claim exists in the firebase object
+    const mfaMethod = decodedToken.firebase?.sign_in_second_factor
+    if (!mfaMethod) {
+      return false
+    }
+    
+    return true
+  } catch (error) {
+    console.error('requireMfa Error:', error)
+    return false
+  }
+}

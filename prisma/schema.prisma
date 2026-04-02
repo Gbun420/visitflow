@@ -82,8 +82,9 @@ model Employee {
   firstName      String
   lastName       String
   email          String
-  iban           String   // Malta IBAN (starting with MT)
-  taxId          String?  // Maltese personal tax ID
+  iban           String   // Malta IBAN (encrypted)
+  taxId          String?  // Maltese personal tax ID (encrypted)
+  encVersion     String   @default("v1") // Track encryption version for key rotation
   employmentType EmploymentType // FULL_TIME, PART_TIME, CONTRACT
   salaryGross    Decimal  @default(0) // Annual gross in EUR
   startDate      DateTime

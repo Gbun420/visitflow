@@ -55,13 +55,13 @@ export default function SignupPage() {
       // 4. Robust error parsing
       switch (err.code) {
         case 'auth/email-already-in-use':
-          setError("An account already exists with this email.")
+          setError("An error occurred during signup. Please try again.")
           break;
         case 'auth/invalid-email':
           setError("Please enter a valid email address.")
           break;
         case 'auth/weak-password':
-          setError("Password is too weak. Please use at least 6 characters.")
+          setError("Password does not meet requirements. Please use at least 8 characters.")
           break;
         case 'auth/too-many-requests':
           setError("Too many attempts. Please wait a few minutes and try again.")
@@ -70,7 +70,7 @@ export default function SignupPage() {
           setError("Email/Password signup is not enabled. Please contact support.")
           break;
         default:
-          setError(err.message || "Signup failed. Please try again.")
+          setError("Signup failed. Please try again.")
       }
     } finally {
       setLoading(false)

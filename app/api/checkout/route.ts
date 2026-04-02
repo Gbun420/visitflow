@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 // Creates a Stripe Checkout Session for the user's company
 export async function POST(req: NextRequest) {
   try {
-    const session = cookies().get('session')?.value
+    const session = cookies().get('__session')?.value
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const decodedToken = await adminAuth.verifySessionCookie(session, true)

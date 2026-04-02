@@ -51,13 +51,9 @@ export default function LoginPage() {
           setError("Please enter a valid email address.")
           break;
         case 'auth/invalid-credential':
-          setError("Incorrect email or password. Please try again.")
-          break;
         case 'auth/user-not-found':
-          setError("No account found with this email.")
-          break;
         case 'auth/wrong-password':
-          setError("Incorrect password. Please try again.")
+          setError("Invalid email or password. Please try again.")
           break;
         case 'auth/too-many-requests':
           setError("Too many failed attempts. Please try again later.")
@@ -66,7 +62,7 @@ export default function LoginPage() {
           setError("Email/Password login is not enabled. Please contact support.")
           break;
         default:
-          setError(err.message || "Login failed. Please try again.")
+          setError("Login failed. Please try again.")
       }
     } finally {
       setLoading(false)
