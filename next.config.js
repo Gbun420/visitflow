@@ -74,14 +74,6 @@ const nextConfig = {
             value: "public, max-age=3600, stale-while-revalidate=86400",
           },
           {
-            key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
-          },
-          {
-            key: "Cross-Origin-Embedder-Policy",
-            value: "require-corp",
-          },
-          {
             key: "Cross-Origin-Resource-Policy",
             value: "same-origin",
           },

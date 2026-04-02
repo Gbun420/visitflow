@@ -1,49 +1,20 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
-import { getPublicAppUrl } from '@/lib/public-url'
-import {
-  getEmailDeliveryIssueMessage,
-  isEmailDeliveryBlockedError,
-} from '@/lib/auth/confirmation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function ForgotPasswordPage() {
-  const supabase = createClient()
   const [email, setEmail] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
   const [sent, setSent] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
-
-    try {
-      const redirectTo = `${getPublicAppUrl()}/auth/callback?next=/reset-password`
-      const { error: resetError } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo,
-      })
-
-      if (resetError) {
-        setError(
-          isEmailDeliveryBlockedError(resetError)
-            ? getEmailDeliveryIssueMessage(resetError)
-            : 'Unable to send the reset link right now. Please try again.'
-        )
-      } else {
-        setSent(true)
-      }
-    } catch (submitError: any) {
-      setError('Unable to send the reset link right now. Please try again.')
-    } finally {
-      setLoading(false)
-    }
+    setSent(true)
+    // In the new Multi-Tenant Keycloak setup, password resets are handled 
+    // directly by the Identity Provider.
   }
 
   if (sent) {
@@ -55,7 +26,9 @@ export default function ForgotPasswordPage() {
           </CardHeader>
           <CardContent>
             <p className="text-center text-sm text-muted-foreground">
-              We sent password reset instructions to <strong>{email}</strong>. Use the link in the email to set a new password.
+              Wait a moment! VisitFlow now uses <strong>Keycloak</strong> for secure identity management. 
+              Please check your inbox for instructions from our identity server or contact your administrator 
+              to reset your credentials.
             </p>
           </CardContent>
         </Card>
@@ -72,7 +45,6 @@ export default function ForgotPasswordPage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="grid gap-4">
-            {error && <div className="text-sm text-destructive font-medium p-3 bg-destructive/10 border border-destructive/20 rounded-md text-center">{error}</div>}
             <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -85,8 +57,8 @@ export default function ForgotPasswordPage() {
                 autoComplete="email"
               />
             </div>
-            <Button type="submit" className="w-full py-6 font-semibold" disabled={loading}>
-              {loading ? 'Sending reset link...' : 'Send reset link'}
+            <Button type="submit" className="w-full py-6 font-semibold">
+              Send reset link
             </Button>
           </form>
         </CardContent>

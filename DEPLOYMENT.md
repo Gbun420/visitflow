@@ -49,18 +49,11 @@ In Project Settings → **API**:
 
 Copy these to your `.env.local` file.
 
-### 2.3 Enable Auth Providers
-In Authentication → **Providers**:
-- **Email** — Enable (magic link or password, choose password for now)
-- **Google** — Optional but recommended
-- **GitHub** — Optional
-
-Set **Site URL** to your live Vercel domain: `https://visitflow-lovat.vercel.app` (use `http://localhost:3000` only for local development).
-Add **Redirect URLs**:
-- `https://visitflow-lovat.vercel.app/auth/callback`
-- `https://visitflow-lovat.vercel.app/auth/confirm`
-- `http://localhost:3000/auth/callback`
-- `http://localhost:3000/auth/confirm`
+### 2.3 Configure Keycloak (Production)
+1. Hosted Keycloak or tenant-specific realm.
+2. Client ID: `visitflow-prod`
+3. Valid Redirect URIs: `https://visitflow-lovat.vercel.app/api/auth/callback/keycloak`.
+4. Copy Client Secret.
 
 Save.
 
@@ -149,13 +142,15 @@ We'll store `STRIPE_PRICE_ID` in env later (or hardcode for now).
 Add all from `.env.local`:
 ```
 DATABASE_URL=postgresql://... (from Supabase)
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_ANON_KEY=...
-SUPABASE_SERVICE_ROLE_KEY=...
+NEXTAUTH_URL=https://visitflow-lovat.vercel.app
+NEXTAUTH_SECRET=...
+KEYCLOAK_HOST=...
+KEYCLOAK_REALM=...
+KEYCLOAK_CLIENT_ID=...
+KEYCLOAK_CLIENT_SECRET=...
 STRIPE_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 OPENAI_API_KEY=sk-...
-NEXT_PUBLIC_APP_URL=https://visitflow-lovat.vercel.app
 ```
 
 `NEXT_PUBLIC_APP_URL` is an optional fallback for server-generated URLs. Client auth flows use the browser origin first, and server routes prefer the live Vercel host.
@@ -181,10 +176,9 @@ Click **Deploy**.
 For the current deployment, keep every route on the same Vercel host.
 
 ### 6.1 Update Auth Redirects
-Back to Supabase Auth → keep the live domain and callback on `visitflow-lovat.vercel.app`:
-- **Site URL**: `https://visitflow-lovat.vercel.app`
-- **Redirect URLs**: `https://visitflow-lovat.vercel.app/auth/callback`, `https://visitflow-lovat.vercel.app/auth/confirm`
-- **Email redirect target in app**: use `/auth/callback` for Google OAuth, signup confirmation, and password reset. `/auth/confirm` remains a compatibility alias.
+Back to Keycloak Realm settings:
+- **Valid Redirect URIs**: `https://visitflow-lovat.vercel.app/api/auth/callback/keycloak`
+- **Web Origins**: `https://visitflow-lovat.vercel.app`
 
 ---
 

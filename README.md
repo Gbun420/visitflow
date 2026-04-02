@@ -16,8 +16,8 @@ Fully automated payroll, tax, and social security compliance for Maltese SMEs.
 
 - **Frontend**: Next.js 14 App Router + TypeScript + Tailwind CSS + Shadcn UI
 - **Backend**: Next.js API routes (serverless)
-- **Database**: PostgreSQL (Supabase)
-- **Auth**: Supabase Auth (email/password + OAuth)
+- **Database**: PostgreSQL
+- **Auth**: NextAuth.js v4 + Keycloak (Multi-tenant OIDC)
 - **Payments**: Stripe Checkout + Webhooks
 - **AI**: OpenAI GPT-4o (streaming JSON)
 
@@ -28,8 +28,7 @@ visitflow/
 ├── app/
 │   ├── api/
 │   │   ├── auth/
-│   │   │   ├── callback/route.ts    # Supabase OAuth callback
-│   │   │   └── signup/route.ts      # Email signup
+│   │   │   └── [...nextauth]/route.ts # NextAuth handler
 │   │   ├── dashboard/
 │   │   │   ├── employees/route.ts
 │   │   │   ├── me/route.ts
@@ -65,7 +64,7 @@ visitflow/
 │       └── badge.tsx
 ├── lib/
 │   ├── prisma.ts
-│   ├── supabase.ts
+│   ├── auth.ts           # NextAuth configuration & tenant extraction
 │   ├── stripe.ts
 │   └── openai.ts
 ├── prisma/
@@ -99,10 +98,10 @@ visitflow/
    npx prisma generate
    ```
 
-4. **Supabase setup**
-   - Enable Auth (email/password + any OAuth providers)
-   - Create a table `users` linking email to company (our Prisma schema handles this)
-   - Configure CORS to allow your domain
+4. **Keycloak setup**
+   - Configure a Realm for the tenant
+   - Create an OIDC client for VisitFlow
+   - Ensure the redirect URI matches `NEXTAUTH_URL/api/auth/callback/keycloak`
 
 5. **Stripe setup**
    - Create products: PayrollPal BASIC, PRO, ENTERPRISE
@@ -136,9 +135,9 @@ visitflow/
 ## 🔧 Development Notes
 
 ### Authentication
-- Uses Supabase Auth with cookie-based sessions.
-- Server routes validate session via `@supabase/supabase-js` client reading cookies.
-- Client uses `@supabase/auth-helpers-react` for session management.
+- Uses NextAuth.js v4 with Prisma adapter.
+- Supports Multi-Tenant Keycloak realms via dynamic provider configuration.
+- Sessions are stored in the database (`Session` model) and linked to `User` and `Account`.
 
 ### Middleware
 - Redirects unauthenticated users from `/dashboard/*` to `/login`.

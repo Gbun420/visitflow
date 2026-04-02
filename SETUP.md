@@ -31,9 +31,12 @@ cp .env.local.example .env.local
 | Variable | Description | Where to Find |
 |----------|-------------|---------------|
 | `DATABASE_URL` | PostgreSQL connection string | Supabase → Project Settings → Database |
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | Supabase → Project Settings → General |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Public anon key | Supabase → Project Settings → API |
-| `SUPABASE_SERVICE_ROLE_KEY` | Service role key (keep secret) | Supabase → Project Settings → API |
+| `NEXTAUTH_URL` | Base URL of the app | e.g., http://localhost:3000 |
+| `NEXTAUTH_SECRET` | Secret for session encryption | Run `openssl rand -base64 32` |
+| `KEYCLOAK_HOST` | Keycloak server host | e.g., https://auth.example.com |
+| `KEYCLOAK_REALM` | Tenant realm name | e.g., `visitflow-tenant-a` |
+| `KEYCLOAK_CLIENT_ID` | OIDC Client ID | e.g., `visitflow-app` |
+| `KEYCLOAK_CLIENT_SECRET` | OIDC Client Secret | From Keycloak Client settings |
 | `STRIPE_SECRET_KEY` | Stripe secret key | Stripe Dashboard → Developers → API Keys |
 | `STRIPE_WEBHOOK_SECRET` | Webhook signing secret | Stripe → Developers → Webhooks |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key | Stripe Dashboard |
@@ -184,9 +187,10 @@ visitflow/
 - For local, use Stripe CLI forwarding
 - In production, set endpoint to `https://your-domain.vercel.app/api/stripe/webhook`
 
-### "Module not found: @supabase/auth-helpers-react"
-- Run `npm install @supabase/auth-helpers-react`
-- If still failing, check `node_modules` and `tsconfig.json` paths
+### "NextAuth session not found"
+- Ensure `NEXTAUTH_URL` matches your current domain precisely.
+- Verify `NEXTAUTH_SECRET` is consistent across environments.
+- Check that Keycloak redirect URIs are correct.
 
 ### TypeScript errors after adding Shadcn components
 - Ensure you've installed required Radix UI dependencies
