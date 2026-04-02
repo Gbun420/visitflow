@@ -4,8 +4,14 @@ out
 build
 .env.local
 .env.*.local
+.env.vercel
+.env.vercel.*
 dist
 coverage
 *.log
+*.tsbuildinfo
+check_user.js
+get_users.js
+tmp_check_db.js
 .DS_Store
 .vercel

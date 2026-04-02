@@ -55,10 +55,12 @@ In Authentication → **Providers**:
 - **Google** — Optional but recommended
 - **GitHub** — Optional
 
-Set **Site URL** to your Vercel preview URL (or `http://localhost:3000` for dev).
+Set **Site URL** to your live Vercel domain: `https://visitflow-lovat.vercel.app` (use `http://localhost:3000` only for local development).
 Add **Redirect URLs**:
-- `https://your-app.vercel.app/api/auth/callback`
-- `http://localhost:3000/api/auth/callback`
+- `https://visitflow-lovat.vercel.app/auth/callback`
+- `https://visitflow-lovat.vercel.app/auth/confirm`
+- `http://localhost:3000/auth/callback`
+- `http://localhost:3000/auth/confirm`
 
 Save.
 
@@ -153,10 +155,10 @@ SUPABASE_SERVICE_ROLE_KEY=...
 STRIPE_SECRET_KEY=sk_test_...
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
 OPENAI_API_KEY=sk-...
-NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
+NEXT_PUBLIC_APP_URL=https://visitflow-lovat.vercel.app
 ```
 
-Do NOT add `NEXT_PUBLIC_SITE_URL` unless needed.
+`NEXT_PUBLIC_APP_URL` is used for checkout success/cancel URLs and Supabase auth email redirects.
 
 ### 5.3 Build Settings
 - Build command: `npm run build` (default)
@@ -174,18 +176,15 @@ Click **Deploy**.
 
 ---
 
-## 6. Domain & HTTPS (Optional but Recommended)
+## 6. Domain & HTTPS
 
-### 6.1 Custom Domain
-In Vercel → Project Settings → Domains → Add domain:
-- `payrollpal.mt` or `payrollmalta.com` etc.
-- Follow DNS instructions (CNAME or A records).
-- Vercel auto-provisions SSL (Let's Encrypt).
+For the current deployment, keep every route on the same Vercel host.
 
-### 6.2 Update Auth Redirects
-Back to Supabase Auth → add your custom domain to:
-- **Site URL**: `https://payrollpal.mt`
-- **Redirect URLs**: `https://payrollpal.mt/api/auth/callback`
+### 6.1 Update Auth Redirects
+Back to Supabase Auth → keep the live domain and callback on `visitflow-lovat.vercel.app`:
+- **Site URL**: `https://visitflow-lovat.vercel.app`
+- **Redirect URLs**: `https://visitflow-lovat.vercel.app/auth/callback`, `https://visitflow-lovat.vercel.app/auth/confirm`
+- **Email redirect target in app**: use `/auth/callback` for Google OAuth and `/auth/confirm` for signup confirmation
 
 ---
 

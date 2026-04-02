@@ -12,7 +12,7 @@ const buildCsp = () => {
     "style-src 'self' 'unsafe-inline'",
     `font-src 'self' https://r2cdn.perplexity.ai${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
     "img-src 'self' blob: data: https:",
-    `connect-src 'self' https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://api.stripe.com${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
+    `connect-src 'self' https://*.supabase.co https://api.stripe.com${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
     `frame-src 'self' https://js.stripe.com${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
     "frame-ancestors 'none'",
     "object-src 'none'",

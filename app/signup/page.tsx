@@ -2,15 +2,17 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { auth } from '@/lib/firebase'
-import { createUserWithEmailAndPassword } from 'firebase/auth'
+import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { getPublicAppUrl } from '@/lib/public-url'
+import { UserPlus } from 'lucide-react'
 
 export default function SignupPage() {
   const router = useRouter()
+  const supabase = createClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -30,48 +32,24 @@ export default function SignupPage() {
     }
 
     try {
-      // 1. Initial Firebase Account Creation
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-      
-      // 2. Extract ID Token
-      const idToken = await userCredential.user.getIdToken()
-      
-      // 3. POST token to session API
-      const response = await fetch('/api/auth/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idToken }),
+      const confirmUrl = `${getPublicAppUrl()}/auth/confirm`
+
+      const { error: signupError } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: confirmUrl,
+        },
       })
 
-      if (response.ok) {
-        setSuccess(true)
-        // We will let the user click "Go to Dashboard" which will push/refresh
+      if (signupError) {
+        setError(signupError.message)
       } else {
-        const errorData = await response.json()
-        setError(errorData.error || 'Failed to create session')
+        setSuccess(true)
       }
     } catch (err: any) {
-      console.error("Firebase Auth Error:", err.code, err.message)
-      // 4. Robust error parsing
-      switch (err.code) {
-        case 'auth/email-already-in-use':
-          setError("An error occurred during signup. Please try again.")
-          break;
-        case 'auth/invalid-email':
-          setError("Please enter a valid email address.")
-          break;
-        case 'auth/weak-password':
-          setError("Password does not meet requirements. Please use at least 8 characters.")
-          break;
-        case 'auth/too-many-requests':
-          setError("Too many attempts. Please wait a few minutes and try again.")
-          break;
-        case 'auth/operation-not-allowed':
-          setError("Email/Password signup is not enabled. Please contact support.")
-          break;
-        default:
-          setError("Signup failed. Please try again.")
-      }
+      console.error("Signup error:", err)
+      setError("An unexpected error occurred. Please try again.")
     } finally {
       setLoading(false)
     }
@@ -79,20 +57,17 @@ export default function SignupPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Card className="w-full max-w-md">
+      <div className="min-h-screen flex items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md shadow-lg border-2">
           <CardHeader>
-            <CardTitle>Account created</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">Check your email</CardTitle>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Your account has been created successfully.
+          <CardContent className="space-y-4">
+            <p className="text-center text-sm text-muted-foreground">
+              We&apos;ve sent a confirmation link to <strong>{email}</strong>. Please check your inbox and follow the instructions to complete your registration.
             </p>
-            <Button className="mt-4 w-full" onClick={() => {
-              router.push('/dashboard')
-              router.refresh()
-            }}>
-              Go to Dashboard
+            <Button className="w-full py-6 font-semibold" onClick={() => router.push('/login')}>
+              Back to Login
             </Button>
           </CardContent>
         </Card>
@@ -101,32 +76,43 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Create your account</CardTitle>
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md shadow-lg border-2">
+        <CardHeader className="space-y-1">
+          <CardTitle className="text-2xl font-bold tracking-tight text-center">Create account</CardTitle>
+          <p className="text-center text-sm text-muted-foreground">Sign up to start managing your payroll with PayrollPal Malta</p>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSignup} className="space-y-4">
-            {error && <div className="text-sm text-destructive font-medium p-2 bg-destructive/10 rounded">{error}</div>}
-            <div className="space-y-2">
+          <form onSubmit={handleSignup} className="grid gap-4">
+            {error && <div className="text-sm text-destructive font-medium p-3 bg-destructive/10 border border-destructive/20 rounded-md text-center">{error}</div>}
+            <div className="grid gap-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="email@example.com" />
+              <Input id="email" type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="email@example.com" autoComplete="email" className="py-5" />
             </div>
-            <div className="space-y-2">
+            <div className="grid gap-2">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} />
+              <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} autoComplete="new-password" placeholder="At least 8 characters" className="py-5" />
             </div>
-            <div className="space-y-2">
+            <div className="grid gap-2">
               <Label htmlFor="confirm">Confirm Password</Label>
-              <Input id="confirm" type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required minLength={8} />
+              <Input id="confirm" type="password" value={confirm} onChange={e => setConfirm(e.target.value)} required minLength={8} autoComplete="new-password" placeholder="Repeat your password" className="py-5" />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Creating account...' : 'Sign up'}
+            <Button type="submit" className="w-full py-6 font-semibold" disabled={loading}>
+              {loading ? (
+                <div className="flex items-center gap-2">
+                  <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                  Creating account...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <UserPlus className="h-4 w-4" />
+                  Sign up
+                </div>
+              )}
             </Button>
           </form>
-          <div className="mt-4 text-center text-sm text-muted-foreground">
-            Already have an account? <a href="/login" className="underline">Log in</a>
+          <div className="mt-6 text-center text-sm">
+            Already have an account? <a href="/login" className="underline font-medium hover:text-primary transition-colors">Log in</a>
           </div>
         </CardContent>
       </Card>

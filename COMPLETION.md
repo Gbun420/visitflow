@@ -14,7 +14,7 @@
 - CRUD: Companies, Employees, Payroll Runs
 - Dashboard UI (dark theme) with employee management and payroll overview
 - API routes:
-  - `/api/auth/signup`, `/api/auth/callback`
+  - Supabase auth flow: client-side login/signup + `/auth/callback`
   - `/api/dashboard/me`, `/api/dashboard/employees`, `/api/dashboard/payroll`, `/api/dashboard/payroll/[id]`, `/api/dashboard/stats`
   - `/api/payroll/calculate`, `/api/payroll/ask`, `/api/payroll/submit`
   - `/api/checkout`, `/api/stripe/webhook`

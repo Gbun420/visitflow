@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { stripe, tierToPriceId } from '@/lib/stripe'
 import { prisma } from '@/lib/prisma'
 import { Tier } from '@prisma/client'
-import { adminAuth } from '@/lib/firebase-admin'
-import { cookies } from 'next/headers'
+import { getCurrentUser } from '@/lib/auth'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,17 +11,21 @@ export const dynamic = 'force-dynamic'
 // Creates a Stripe Checkout Session for the user's company
 export async function POST(req: NextRequest) {
   try {
-    const session = cookies().get('__session')?.value
-    if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const appUser = await getCurrentUser()
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/$/, '')
 
-    const decodedToken = await adminAuth.verifySessionCookie(session, true)
-    if (!decodedToken || !decodedToken.email) {
+    if (!appUser?.company) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const appUser = await prisma.user.findUnique({ where: { email: decodedToken.email }, include: { companies: true } })
-    if (!appUser || appUser.companies.length === 0) return NextResponse.json({ error: 'No company' }, { status: 403 })
-    const company = appUser.companies[0]
+    if (!appUrl) {
+      return NextResponse.json(
+        { error: 'NEXT_PUBLIC_APP_URL is not configured' },
+        { status: 500 }
+      )
+    }
+
+    const company = appUser.company
 
     const body = await req.json()
     const { tier } = body as { tier: string }
@@ -36,8 +39,9 @@ export async function POST(req: NextRequest) {
     // Ensure company has a Stripe customer ID; if not, create one
     let customerId = company.stripeCustomerId
     if (!customerId) {
+      if (!appUser.email) return NextResponse.json({ error: 'User email missing' }, { status: 400 })
       const customer = await stripe.customers.create({
-        email: decodedToken.email,
+        email: appUser.email,
         name: company.name,
         metadata: { companyId: company.id },
       })
@@ -54,8 +58,8 @@ export async function POST(req: NextRequest) {
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: 'subscription',
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?success=true`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL}/dashboard?canceled=true`,
+      success_url: `${appUrl}/dashboard?success=true`,
+      cancel_url: `${appUrl}/dashboard?canceled=true`,
       metadata: { companyId: company.id, tier },
     })
 

@@ -41,7 +41,7 @@ cp .env.local.example .env.local
 | `STRIPE_PRICE_PRO` | Stripe price ID for PRO tier | Stripe → Products |
 | `STRIPE_PRICE_ENTERPRISE` | Stripe price ID for ENTERPRISE tier | Stripe → Products |
 | `OPENAI_API_KEY` | OpenAI API key | OpenAI Platform |
-| `NEXT_PUBLIC_APP_URL` | Your app URL | e.g., http://localhost:3000 |
+| `NEXT_PUBLIC_APP_URL` | Canonical app URL used for auth redirects and checkout | e.g., http://localhost:3000 or https://visitflow-lovat.vercel.app |
 
 ### 3. Create Stripe Products
 
