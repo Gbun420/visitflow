@@ -10,6 +10,7 @@ import {
 import KeycloakProvider from 'next-auth/providers/keycloak'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import type { NextAuthOptions } from 'next-auth'
+import bcrypt from 'bcryptjs'
 
 const KEYCLOAK_HOST = process.env.KEYCLOAK_HOST?.replace(/\/$/, '')
 const KEYCLOAK_REALM = process.env.KEYCLOAK_REALM
@@ -35,14 +36,22 @@ const buildKeycloakProfile = (profile: any) => {
 }
 
 async function ensureUser(email: string, name?: string, sub?: string, tenantId?: string) {
-  const supabaseUid = sub ? `keycloak:${sub}` : `keycloak:${email}`
+  const supabaseUid = sub ? `keycloak:${sub}` : null
 
   const existing = await prisma.user.findUnique({
     where: { email },
     include: { companies: true },
   })
 
-  if (existing) return existing
+  if (existing) {
+    if (sub && !existing.supabaseUid) {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: { supabaseUid },
+      })
+    }
+    return existing
+  }
 
   const user = await prisma.user.create({
     data: {
@@ -100,24 +109,53 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email and password are required')
         }
 
-        const tokenResponse = await requestKeycloakToken(
-          credentials.email,
-          credentials.password
-        )
-        const claims = decodeKeycloakToken<KeycloakClaims>(tokenResponse.access_token)
+        // 1. Try Keycloak first if configured
+        if (KEYCLOAK_ISSUER) {
+          try {
+            const tokenResponse = await requestKeycloakToken(
+              credentials.email,
+              credentials.password
+            )
+            const claims = decodeKeycloakToken<KeycloakClaims>(tokenResponse.access_token)
 
-        if (!claims?.email) {
-          throw new Error('Invalid Keycloak token')
+            if (claims?.email) {
+              const user = await ensureUser(
+                claims.email,
+                claims.name ?? claims.preferred_username,
+                claims.sub,
+                extractTenantIdentifier(claims)
+              )
+
+              const companyId = await resolveCompanyId(user.id, extractTenantIdentifier(claims))
+
+              return {
+                id: user.id,
+                email: user.email,
+                name: user.name ?? null,
+                companyId,
+              }
+            }
+          } catch (keycloakError) {
+            console.warn('Keycloak auth failed, falling back to local DB:', keycloakError)
+          }
         }
 
-        const user = await ensureUser(
-          claims.email,
-          claims.name ?? claims.preferred_username,
-          claims.sub,
-          extractTenantIdentifier(claims)
-        )
+        // 2. Fallback to local DB
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        })
 
-        const companyId = await resolveCompanyId(user.id, extractTenantIdentifier(claims))
+        if (!user || !user.password) {
+          throw new Error('Invalid email or password')
+        }
+
+        const isValid = await bcrypt.compare(credentials.password, user.password)
+
+        if (!isValid) {
+          throw new Error('Invalid email or password')
+        }
+
+        const companyId = await resolveCompanyId(user.id)
 
         return {
           id: user.id,
@@ -129,18 +167,21 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   session: {
-    strategy: 'database',
+    strategy: 'jwt',
   },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
+        token.id = user.id
         token.companyId = user.companyId ?? null
       }
       return token
     },
     async session({ session, token }) {
-      session.user.id = token.sub ?? session.user.id
-      session.user.companyId = token.companyId ?? null
+      if (session.user) {
+        session.user.id = token.id as string
+        session.user.companyId = token.companyId as string | null
+      }
       return session
     },
   },
