@@ -181,24 +181,24 @@ model VerificationToken {
 }
 
 model Employee {
-  id             String         @id() @default(cuid())
-  firstName      String
-  lastName       String
-  email          String         @unique()
-  iban           String
-  taxId          String?
-  employmentType EmploymentType
-  salaryGross    Decimal        @default(0)
-  salary         Float
-  startDate      DateTime
-  endDate        DateTime?
-  companyId      String
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt()
-  encVersion     String         @default("v1")
-  benefits       Benefit[]
-  company        Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  payrollEntries PayrollEntry[]
+  id                 String         @id() @default(cuid())
+  firstName          String
+  lastName           String
+  email              String         @unique()
+  iban               String
+  taxId              String?
+  employmentType     EmploymentType
+  salaryGross        Decimal        @default(0)
+  base_salary_amount Float
+  startDate          DateTime
+  endDate            DateTime?
+  companyId          String
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt()
+  encVersion         String         @default("v1")
+  benefits           Benefit[]
+  company            Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  payrollEntries     PayrollEntry[]
 
   @@index([companyId])
   @@index([email])

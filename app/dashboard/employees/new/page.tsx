@@ -25,7 +25,7 @@ export default function NewEmployeePage() {
       firstName: '',
       lastName: '',
       email: '',
-      salary: 0,
+      base_salary_amount: 0,
       iban: '',
       taxId: '',
       employmentType: 'FULL_TIME',
@@ -118,7 +118,7 @@ export default function NewEmployeePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
-                  name="salary"
+                  name="base_salary_amount"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Annual Gross Salary (€)</FormLabel>

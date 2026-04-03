@@ -3,10 +3,7 @@ import "./globals.css";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://payrollpal.mt'),
-  title: "PayrollPal Malta — AI-powered Payroll for Maltese SMEs",
-  description: "Secure, automated, and fully compliant payroll infrastructure for Maltese businesses. Built for 2026 regulatory standards with zero-trust security.",
-  keywords: ["malta payroll", "msss malta", "fss tax", "fs3 fs5 automation", "maltese fintech"],
+  metadataBase: new URL('https://payrollpal.mt'),
   authors: [{ name: "PayrollPal Malta" }],
   openGraph: {
     title: "PayrollPal Malta — AI-powered Payroll for Maltese SMEs",
