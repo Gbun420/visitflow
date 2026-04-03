@@ -37,6 +37,12 @@ export async function POST(req: NextRequest) {
       },
     })
 
+    // CRITICAL: Update user's companyId for ZenStack multi-tenant isolation
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { companyId: company.id },
+    })
+
     await prisma.auditEvent.create({
       data: {
         companyId: company.id,

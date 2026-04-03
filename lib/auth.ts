@@ -17,11 +17,7 @@ export async function getCurrentUser() {
     const user = await prisma.user.findUnique({
       where: { email: session.user.email },
       include: {
-        companies: {
-          take: 1,
-          where: { status: 'ACTIVE' as const },
-          orderBy: { createdAt: 'asc' as const },
-        },
+        company: true,
       },
     })
 
@@ -29,10 +25,7 @@ export async function getCurrentUser() {
       return null
     }
 
-    return {
-      ...user,
-      company: user.companies[0] || null,
-    }
+    return user
   } catch (error) {
     console.error('getCurrentUser Error:', error)
     return null

@@ -16,3 +16,5 @@ tmp_check_db.js
 .DS_Store
 .vercel
 .env*.local
+
+.trigger

@@ -1,0 +1,378 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+plugin hooks {
+  provider = "@zenstackhq/swr"
+  output = "./src/lib/hooks"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  password      String?   @password @omit
+  name          String?
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  supabaseUid   String?   @unique
+  emailVerified DateTime?
+  
+  // Multi-tenant relation
+  companyId     String?
+  company       Company?  @relation(fields: [companyId], references: [id])
+  
+  companies     Company[] @relation("OwnedCompanies")
+  accounts      Account[]
+  sessions      Session[]
+
+  // Policies:
+  // 1. A user can read/write their own profile
+  @@allow('all', auth() == this)
+  // 2. Users in the same company can read each other's basic profiles
+  @@allow('read', auth().companyId == companyId)
+
+  @@index([email])
+  @@index([supabaseUid])
+}
+
+model Company {
+  id                            String                    @id @default(cuid())
+  name                          String
+  registrationNumber            String
+  taxId                         String
+  externalId                    String?                   @unique
+  address                       Json?
+  userId                        String
+  stripeCustomerId              String?                   @unique
+  stripeSubscriptionId          String?                   @unique
+  stripePriceId                 String?
+  subscriptionTier              Tier                      @default(FREE)
+  subscriptionStatus            StripeSubscriptionStatus? @default(INACTIVE)
+  subscriptionCurrentPeriodEnd  DateTime?
+  subscriptionCancelAtPeriodEnd Boolean                   @default(false)
+  status                        CompanyStatus             @default(ACTIVE)
+  createdAt                     DateTime                  @default(now())
+  updatedAt                     DateTime                  @updatedAt
+  
+  owner                         User                      @relation("OwnedCompanies", fields: [userId], references: [id])
+  users                         User[]
+  employees                     Employee[]
+  payrollRuns                   PayrollRun[]
+
+  // Policies:
+  // 1. A user can only read and update the company they belong to.
+  @@allow('read,update', auth().companyId == id)
+  // 2. Allowed to create during onboarding
+  @@allow('create', true)
+  @@allow('delete', false)
+
+  @@index([userId])
+  @@index([stripeCustomerId])
+  @@index([stripeSubscriptionId])
+}
+
+model Account {
+  id                 String @id @default(cuid())
+  userId             String
+  type               String
+  provider           String
+  providerAccountId  String
+  refresh_token      String? @map("refresh_token") @db.Text
+  access_token       String? @map("access_token") @db.Text
+  expires_at         Int?    @map("expires_at")
+  token_type         String? @map("token_type")
+  scope              String?
+  id_token           String? @map("id_token") @db.Text
+  session_state      String? @map("session_state")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Policy: Users can only see their own accounts
+  @@allow('all', auth() == user)
+
+  @@unique([provider, providerAccountId])
+  @@map("Account")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Policy: Users can only see their own sessions
+  @@allow('all', auth() == user)
+
+  @@map("Session")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  // Policy: System level only, no direct user access needed
+  @@allow('all', true)
+
+  @@map("VerificationToken")
+  @@unique([identifier, token])
+}
+
+model Employee {
+  id             String         @id @default(cuid())
+  firstName      String
+  lastName       String
+  email          String         @unique
+  iban           String
+  taxId          String?
+  employmentType EmploymentType
+  salaryGross    Decimal        @default(0)
+  salary         Float          @gt(0)
+  startDate      DateTime
+  endDate        DateTime?
+  companyId      String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  encVersion     String         @default("v1")
+  benefits       Benefit[]
+  company        Company        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  payrollEntries PayrollEntry[]
+
+  // THE MAGIC RULE:
+  // Any user trying to access this employee MUST belong to the same company.
+  @@allow('all', auth().companyId == companyId)
+
+  @@index([companyId])
+  @@index([email])
+}
+
+model PayrollRun {
+  id                  String         @id @default(cuid())
+  periodStart         DateTime
+  periodEnd           DateTime
+  status              PayrollStatus
+  companyId           String
+  submissionReference String?
+  submittedAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  entries             PayrollEntry[]
+  company             Company        @relation(fields: [companyId], references: [id])
+
+  // Tenant isolation
+  @@allow('all', auth().companyId == companyId)
+
+  @@unique([companyId, periodStart, periodEnd])
+  @@index([companyId])
+  @@index([status])
+}
+
+model PayrollEntry {
+  id             String         @id @default(cuid())
+  payrollRunId   String
+  employeeId     String
+  salaryGross    Decimal
+  tax            Decimal
+  socialSecurity Decimal
+  netPay         Decimal
+  totalCost      Decimal
+  notes          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  contributions  Contribution[]
+  employee       Employee       @relation(fields: [employeeId], references: [id])
+  payrollRun     PayrollRun     @relation(fields: [payrollRunId], references: [id])
+
+  // Tenant isolation
+  @@allow('all', auth().companyId == payrollRun.companyId)
+
+  @@unique([payrollRunId, employeeId])
+  @@index([payrollRunId])
+}
+
+model Contribution {
+  id             String           @id @default(cuid())
+  payrollEntryId String
+  type           ContributionType
+  amount         Decimal
+  description    String
+  createdAt      DateTime         @default(now())
+  payrollEntry   PayrollEntry     @relation(fields: [payrollEntryId], references: [id])
+
+  // Tenant isolation
+  @@allow('all', auth().companyId == payrollEntry.payrollRun.companyId)
+}
+
+model Benefit {
+  id            String      @id @default(cuid())
+  employeeId    String
+  type          BenefitType
+  value         Decimal
+  effectiveDate DateTime
+  endDate       DateTime?
+  createdAt     DateTime    @default(now())
+  employee      Employee    @relation(fields: [employeeId], references: [id])
+
+  // Tenant isolation
+  @@allow('all', auth().companyId == employee.companyId)
+
+  @@index([employeeId])
+}
+
+model TaxBracket {
+  id            String    @id @default(cuid())
+  year          Int
+  minIncome     Decimal
+  maxIncome     Decimal?
+  rate          Decimal
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+
+  // System data is readable by all
+  @@allow('read', true)
+
+  @@unique([year, minIncome])
+  @@index([year])
+}
+
+model SocialSecurityRate {
+  id               String    @id @default(cuid())
+  year             Int       @unique
+  employeeRate     Decimal
+  employerRate     Decimal
+  maxWeeklyEarning Decimal
+  effectiveFrom    DateTime
+  effectiveTo      DateTime?
+
+  // System data is readable by all
+  @@allow('read', true)
+
+  @@index([year])
+}
+
+model Optimization {
+  id              String             @id @default(cuid())
+  companyId       String
+  suggestedAt     DateTime           @default(now())
+  type            OptimizationType
+  description     String
+  estimatedSaving Decimal
+  status          OptimizationStatus @default(PENDING)
+  appliedAt       DateTime?
+  employeeId      String?
+
+  // Tenant isolation
+  @@allow('all', auth().companyId == companyId)
+
+  @@index([companyId])
+  @@index([status])
+}
+
+model AuditEvent {
+  id         String   @id @default(cuid())
+  companyId  String
+  userId     String?
+  action     String
+  resource   String?
+  resourceId String?
+  metadata   Json?
+  ip         String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  // Tenant isolation
+  @@allow('all', auth().companyId == companyId)
+
+  @@index([companyId])
+  @@index([createdAt])
+}
+
+enum Tier {
+  FREE
+  BASIC
+  PRO
+  ENTERPRISE
+}
+
+enum StripeSubscriptionStatus {
+  INACTIVE
+  ACTIVE
+  PAST_DUE
+  CANCELED
+  UNPAID
+  TRIALING
+  INCOMPLETE
+  INCOMPLETE_EXPIRED
+}
+
+enum CompanyStatus {
+  ACTIVE
+  SUSPENDED
+  ARCHIVED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERN
+}
+
+enum PayrollStatus {
+  DRAFT
+  CALCULATED
+  SUBMITTED
+  PAID
+  CANCELLED
+}
+
+enum ContributionType {
+  MSSS_EMPLOYEE
+  MSSS_EMPLOYER
+  BONUS_TAXABLE
+  BONUS_TAX_EXEMPT
+  MEAL_ALLOWANCE
+  TRAVEL_ALLOWANCE
+  CAR_ALLOWANCE
+  OTHER_ALLOWANCE
+  UNION_FEE
+  INSURANCE_PREMIUM
+}
+
+enum BenefitType {
+  CAR_ALLOWANCE
+  MEAL_ALLOWANCE
+  TRANSPORT
+  MOBILE
+  HOUSING
+  EDUCATION
+  BONUS
+  COMMISSION
+  MEDICAL_INSURANCE
+  PENSION_CONTRIBUTION
+}
+
+enum OptimizationType {
+  TAX_LOSS_HARVESTING
+  BENEFIT_RESTRUCTURE
+  BONUS_TIMING
+  PENSION_TOPUP
+  SSF_CHOICE
+}
+
+enum OptimizationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  APPLIED
+}

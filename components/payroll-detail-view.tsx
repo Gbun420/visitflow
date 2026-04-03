@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { Download } from 'lucide-react'
 
 interface PayrollEntry {
   id: string
@@ -51,10 +52,8 @@ export function PayrollDetailView({ run, entries }: { run: PayrollRun, entries: 
     if (!confirm('Submit to Malta Commissioner for Revenue?')) return
     setLoading(true)
     try {
-      const res = await fetch(`/api/payroll/submit`, {
+      const res = await fetch(`/api/dashboard/payroll/${run.id}/submit`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ payrollRunId: run.id }),
       })
       if (res.ok) {
         alert('Submitted!')
@@ -106,6 +105,7 @@ export function PayrollDetailView({ run, entries }: { run: PayrollRun, entries: 
               <TableHead className="text-right">Net Pay</TableHead>
               <TableHead className="text-right">Total Cost</TableHead>
               <TableHead>Notes</TableHead>
+              <TableHead className="text-right">Payslip</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -118,6 +118,13 @@ export function PayrollDetailView({ run, entries }: { run: PayrollRun, entries: 
                 <TableCell className="text-right">€{Number(entry.netPay).toFixed(2)}</TableCell>
                 <TableCell className="text-right font-semibold">€{Number(entry.totalCost).toFixed(2)}</TableCell>
                 <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">{entry.notes}</TableCell>
+                <TableCell className="text-right">
+                  <a href={`/api/payslips/${entry.id}`} target="_blank" rel="noopener noreferrer">
+                    <Button variant="ghost" size="icon" title="Download PDF Payslip">
+                      <Download className="h-4 w-4" />
+                    </Button>
+                  </a>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -135,13 +142,13 @@ export function PayrollDetailView({ run, entries }: { run: PayrollRun, entries: 
       <div className="rounded-lg border border-border p-6 bg-card">
         <h3 className="text-lg font-semibold mb-2">AI Natural Language Query</h3>
         <p className="text-sm text-muted-foreground mb-4">Ask questions about this payroll run: “What if we give a bonus?” or “How much would tax change if salary increased by 10%?”</p>
-        <AIQuery companyId={run.companyId} />
+        <AIQuery />
       </div>
     </div>
   )
 }
 
-function AIQuery({ companyId }: { companyId: string }) {
+function AIQuery() {
   const [q, setQ] = useState('')
   const [answer, setAnswer] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -150,10 +157,10 @@ function AIQuery({ companyId }: { companyId: string }) {
     if (!q.trim()) return
     setLoading(true)
     try {
-      const res = await fetch('/api/payroll/ask', {
+      const res = await fetch('/api/dashboard/payroll/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, companyId }),
+        body: JSON.stringify({ question: q }),
       })
       const data = await res.json()
       setAnswer(data.answer)

@@ -13,6 +13,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <Link href="/dashboard" className="text-sm hover:underline">Dashboard</Link>
           <Link href="/dashboard/employees" className="text-sm hover:underline">Employees</Link>
           <Link href="/dashboard/payroll" className="text-sm hover:underline">Payroll</Link>
+          <Link href="/dashboard/billing" className="text-sm hover:underline">Billing</Link>
           <Link href="/account/security" className="text-sm hover:underline">Settings</Link>
           <form action="/api/auth/logout" method="POST">
             <button type="submit" className="text-sm hover:underline text-destructive ml-4">Logout</button>

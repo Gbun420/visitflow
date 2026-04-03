@@ -49,6 +49,7 @@ export async function POST(req: NextRequest) {
         encVersion: "v1",
         employmentType,
         salaryGross: Number(salaryGross),
+        salary: Number(salaryGross),
         startDate: startDate ? new Date(startDate) : new Date(),
         companyId,
       },

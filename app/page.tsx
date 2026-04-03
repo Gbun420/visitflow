@@ -1,231 +1,136 @@
-import Link from 'next/link'
-import Image from 'next/image'
-import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/lib/auth'
 import { getAuthenticatedLandingPath } from '@/lib/navigation'
-import { Header } from '@/components/header'
+import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { CheckCircle2, ShieldCheck, Bot, Calculator, Landmark } from 'lucide-react'
+import { Header } from '@/components/header'
+import { ShieldCheck, Zap, FileText, ArrowRight } from 'lucide-react'
+import Link from 'next/link'
+import Image from 'next/image'
 
 export default async function HomePage() {
   const user = await getCurrentUser()
   
-  // If user is logged in and has a company, send them to dashboard
+  // Redirect logged-in users to their appropriate dashboard path
   if (user?.company) {
     redirect(getAuthenticatedLandingPath(user))
   }
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="py-20 lg:py-32 bg-muted/30">
-          <div className="container px-4 text-center space-y-8">
-            <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-primary/10 text-primary border border-primary/20 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <Bot className="w-4 h-4 mr-2" />
-              AI-Powered Payroll for Malta
-            </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight max-w-4xl mx-auto leading-tight">
-              Maltese Payroll, <span className="text-primary">Fully Automated</span> with AI.
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              The first AI-native payroll platform built specifically for Maltese SMEs. Tax, Social Security (MSSS), and FS3/FS5 submissions handled in seconds.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-              <Link href="/signup">
-                <Button size="lg" className="px-8 py-6 text-lg font-semibold w-full sm:w-auto">
-                  Start Free Trial
-                </Button>
-              </Link>
-              <Link href="/login">
-                <Button size="lg" variant="outline" className="px-8 py-6 text-lg font-semibold w-full sm:w-auto">
-                  Book a Demo
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* Features Section */}
-        <section id="features" className="py-24 container px-4">
-          <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Built for Malta Compliance</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">Everything you need to stay compliant with the Commissioner for Revenue and Social Security Department.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-3 gap-8">
-            <Card className="border-2 hover:border-primary/50 transition-colors">
-              <CardHeader>
-                <Calculator className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>AI Calculations</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">GPT-4o powered calculations that handle partial months, benefits-in-kind, and complex tax brackets with 100% precision.</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 hover:border-primary/50 transition-colors">
-              <CardHeader>
-                <Landmark className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Automatic Submissions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">Generate FS3, FS5, and FS7 reports automatically. One-click submission to Maltese authorities coming soon.</p>
-              </CardContent>
-            </Card>
-
-            <Card className="border-2 hover:border-primary/50 transition-colors">
-              <CardHeader>
-                <ShieldCheck className="w-10 h-10 text-primary mb-2" />
-                <CardTitle>Secure & Private</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-muted-foreground">End-to-end encryption for sensitive employee data. Fully GDPR compliant with local Malta data residency options.</p>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* Highlight Section */}
-        <section className="bg-primary text-primary-foreground py-24">
-          <div className="container px-4 flex flex-col lg:flex-row items-center gap-12">
-            <div className="flex-1 space-y-6">
-              <h2 className="text-3xl md:text-4xl font-bold leading-tight">Stop calculating MSSS on spreadsheets.</h2>
-              <p className="text-primary-foreground/80 text-lg">
-                Our AI understands the Maltese Social Security rates, weekly caps, and maternity fund contributions so you don&apos;t have to.
+        <section className="container mx-auto px-4 py-20 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="space-y-8 text-center lg:text-left">
+              <div className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium bg-primary/10 text-primary border border-primary/20">
+                <Zap className="w-4 h-4 mr-2" />
+                The Future of Maltese Payroll
+              </div>
+              <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-tight">
+                Effortless <span className="text-primary">Multi-Tenant</span> Payroll for Malta.
+              </h1>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto lg:mx-0">
+                Automate your compliance with Malta Legal Notice 274 of 2018. Secure, asynchronous, and built for modern Maltese SMEs.
               </p>
-              <ul className="space-y-3">
-                {[
-                  "Cumulative Tax Calculation",
-                  "MSSS Weekly Capping",
-                  "Benefit-in-Kind Valuations",
-                  "Automatic Pro-rata for new joins"
-                ].map((item) => (
-                  <li key={item} className="flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-primary-foreground" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
+                <Link href="/signup">
+                  <Button size="lg" className="px-8 py-7 text-lg font-bold w-full sm:w-auto shadow-lg shadow-primary/20">
+                    Start Free Trial
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+                <Link href="/login">
+                  <Button size="lg" variant="outline" className="px-8 py-7 text-lg font-semibold w-full sm:w-auto">
+                    Client Login
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <div className="flex-1 bg-background/10 rounded-2xl p-8 backdrop-blur-sm border border-white/10 w-full">
-               <div className="space-y-4">
-                  <div className="h-4 w-3/4 bg-white/20 rounded animate-pulse" />
-                  <div className="h-4 w-1/2 bg-white/20 rounded animate-pulse" />
-                  <div className="pt-4 grid grid-cols-2 gap-4">
-                    <div className="h-20 bg-white/10 rounded" />
-                    <div className="h-20 bg-white/10 rounded" />
-                  </div>
-                  <div className="h-40 bg-white/10 rounded" />
-               </div>
+            <div className="relative">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-primary/20 rounded-2xl blur opacity-20"></div>
+              <Image 
+                src="/hero-payroll.svg" 
+                alt="VisitFlow Dashboard Visualization" 
+                width={800}
+                height={600}
+                className="relative w-full drop-shadow-2xl rounded-xl border border-border bg-card"
+                priority
+              />
             </div>
           </div>
         </section>
 
-        {/* Pricing Section */}
-        <section id="pricing" className="py-24 container px-4">
-          <div className="text-center mb-16 space-y-4">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Simple, Transparent Pricing</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">Scales with your business. No hidden fees.</p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <Card className="flex flex-col">
-              <CardHeader>
-                <CardTitle>Basic</CardTitle>
-                <div className="pt-2">
-                  <span className="text-4xl font-bold">€19</span>
-                  <span className="text-muted-foreground">/mo</span>
+        {/* Features Grid */}
+        <section className="bg-muted/30 py-24 border-y border-border">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16 space-y-4">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Enterprise-Grade by Design</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto text-lg">Every feature is built with three core pillars in mind: security, reliability, and local compliance.</p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="bg-card p-8 rounded-2xl border-2 border-border hover:border-primary/50 transition-all group">
+                <div className="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <ShieldCheck className="w-6 h-6 text-primary" />
                 </div>
-              </CardHeader>
-              <CardContent className="flex-1 space-y-4">
-                <p className="text-sm text-muted-foreground">For small teams starting out.</p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Up to 5 employees</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> AI Calculations</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Email Support</li>
-                </ul>
-              </CardContent>
-              <div className="p-6 pt-0 mt-auto">
-                <Button className="w-full" variant="outline">Choose Basic</Button>
+                <h3 className="text-xl font-bold mb-3">Zero-Trust Security</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Powered by ZenStack and Prisma. Mathematical data isolation ensures no tenant can ever access another company&apos;s records.
+                </p>
               </div>
-            </Card>
 
-            <Card className="flex flex-col border-primary border-2 relative">
-              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] px-2 py-1 rounded-bl-lg font-bold uppercase tracking-wider">Most Popular</div>
-              <CardHeader>
-                <CardTitle>Professional</CardTitle>
-                <div className="pt-2">
-                  <span className="text-4xl font-bold">€49</span>
-                  <span className="text-muted-foreground">/mo</span>
+              <div className="bg-card p-8 rounded-2xl border-2 border-border hover:border-primary/50 transition-all group">
+                <div className="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <Zap className="w-6 h-6 text-primary" />
                 </div>
-              </CardHeader>
-              <CardContent className="flex-1 space-y-4">
-                <p className="text-sm text-muted-foreground">For growing Maltese SMEs.</p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Up to 25 employees</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Automatic FS3/FS5</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Priority AI Chat</li>
-                </ul>
-              </CardContent>
-              <div className="p-6 pt-0 mt-auto">
-                <Button className="w-full">Choose Pro</Button>
+                <h3 className="text-xl font-bold mb-3">Asynchronous Engine</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Complex payroll processing handled in the background via Trigger.dev. No timeouts, high durability, and real-time status updates.
+                </p>
               </div>
-            </Card>
 
-            <Card className="flex flex-col">
-              <CardHeader>
-                <CardTitle>Enterprise</CardTitle>
-                <div className="pt-2">
-                  <span className="text-4xl font-bold">€149</span>
-                  <span className="text-muted-foreground">/mo</span>
+              <div className="bg-card p-8 rounded-2xl border-2 border-border hover:border-primary/50 transition-all group">
+                <div className="bg-primary/10 w-12 h-12 rounded-lg flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                  <FileText className="w-6 h-6 text-primary" />
                 </div>
-              </CardHeader>
-              <CardContent className="flex-1 space-y-4">
-                <p className="text-sm text-muted-foreground">For larger organizations.</p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Unlimited employees</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Dedicated Account Manager</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="w-4 h-4 text-primary" /> Custom API Access</li>
-                </ul>
-              </CardContent>
-              <div className="p-6 pt-0 mt-auto">
-                <Button className="w-full" variant="outline">Contact Sales</Button>
+                <h3 className="text-xl font-bold mb-3">Legal Compliance</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  Automated PDF payslip generation mapped perfectly to Malta Legal Notice 274 of 2018. FS3 and FS5 reports ready in one click.
+                </p>
               </div>
-            </Card>
+            </div>
           </div>
         </section>
 
-        {/* Final CTA */}
-        <section className="py-24 bg-muted/50 text-center">
-          <div className="container px-4 space-y-8">
-            <h2 className="text-3xl font-bold sm:text-4xl">Ready to automate your payroll?</h2>
-            <p className="text-muted-foreground max-w-xl mx-auto">Join dozens of Maltese businesses saving hours every month with AI-powered payroll.</p>
-            <Link href="/signup">
-              <Button size="lg" className="px-10 h-14 text-lg font-bold">
-                Get Started for Free
-              </Button>
-            </Link>
+        {/* Trust Section */}
+        <section className="py-24 container mx-auto px-4 text-center">
+          <h2 className="text-2xl font-bold mb-12 text-muted-foreground/60 uppercase tracking-widest text-sm">Trusted by modern Maltese businesses</h2>
+          <div className="flex flex-wrap justify-center items-center gap-12 opacity-40 grayscale contrast-200">
+            <div className="font-black text-3xl italic tracking-tighter">VallettaTech</div>
+            <div className="font-black text-3xl italic tracking-tighter">SliemaSoft</div>
+            <div className="font-black text-3xl italic tracking-tighter">GozoDigital</div>
+            <div className="font-black text-3xl italic tracking-tighter">IslandScale</div>
           </div>
         </section>
       </main>
 
       <footer className="border-t py-12 bg-background">
-        <div className="container px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2 font-bold text-xl">
-            <Image src="/icon.svg" alt="PayrollPal Malta Logo" width={24} height={24} className="rounded-sm opacity-80" />
-            PayrollPal Malta
-          </div>
-          <div className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} PayrollPal Malta. All rights reserved.
-          </div>
-          <div className="flex gap-6 text-sm text-muted-foreground">
-            <Link href="#" className="hover:text-primary underline-offset-4 hover:underline">Privacy Policy</Link>
-            <Link href="#" className="hover:text-primary underline-offset-4 hover:underline">Terms of Service</Link>
-            <Link href="#" className="hover:text-primary underline-offset-4 hover:underline">Contact</Link>
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+            <div className="flex items-center gap-2 font-bold text-xl">
+              <Image src="/icon.svg" alt="PayrollPal Logo" width={24} height={24} />
+              PayrollPal <span className="text-primary">Malta</span>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} PayrollPal Malta. All rights reserved.
+            </div>
+            <nav className="flex gap-8 text-sm font-medium">
+              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Privacy Policy</Link>
+              <Link href="#" className="text-muted-foreground hover:text-primary transition-colors">Terms of Service</Link>
+              <Link href="mailto:support@payrollpal.mt" className="text-muted-foreground hover:text-primary transition-colors">Support</Link>
+            </nav>
           </div>
         </div>
       </footer>

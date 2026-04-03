@@ -173,8 +173,16 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
-        token.companyId = user.companyId ?? null
       }
+      
+      // Always fetch latest companyId from DB to ensure it's up to date
+      // (e.g. after user finishes company setup)
+      const dbUser = await prisma.user.findUnique({
+        where: { id: token.id as string },
+        select: { companyId: true }
+      })
+      
+      token.companyId = dbUser?.companyId ?? null
       return token
     },
     async session({ session, token }) {
