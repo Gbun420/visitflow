@@ -99,7 +99,7 @@ export default async function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <Link href="/dashboard/employees/new"><Button variant="outline">Add Employee</Button></Link>
-          <RunPayrollButton />
+          <RunPayrollButton employeeCount={employeeCount} />
         </div>
       </div>
 

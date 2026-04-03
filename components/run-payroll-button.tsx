@@ -3,13 +3,22 @@
 import { useTransition, useState } from "react";
 import { triggerPayroll } from "@/app/actions/payroll";
 import { Button } from "@/components/ui/button";
-import { Loader2, PlayCircle } from "lucide-react";
+import { Loader2, PlayCircle, AlertCircle } from "lucide-react";
 
-export function RunPayrollButton() {
+interface RunPayrollButtonProps {
+  employeeCount: number;
+}
+
+export function RunPayrollButton({ employeeCount }: RunPayrollButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const handleRunPayroll = () => {
+    if (employeeCount === 0) {
+      setMessage({ type: 'error', text: "You must add at least one employee first." });
+      return;
+    }
+    
     setMessage(null);
     startTransition(async () => {
       const result = await triggerPayroll();
@@ -25,8 +34,9 @@ export function RunPayrollButton() {
     <div className="flex flex-col gap-2">
       <Button 
         onClick={handleRunPayroll} 
-        disabled={isPending}
+        disabled={isPending || employeeCount === 0}
         className="font-semibold"
+        variant={employeeCount === 0 ? "secondary" : "default"}
       >
         {isPending ? (
           <>
@@ -40,6 +50,12 @@ export function RunPayrollButton() {
           </>
         )}
       </Button>
+      {employeeCount === 0 && (
+        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
+          <AlertCircle className="h-3 w-3" />
+          No employees added
+        </div>
+      )}
       {message && (
         <p className={`text-xs font-medium ${message.type === 'success' ? 'text-green-600' : 'text-destructive'}`}>
           {message.text}
