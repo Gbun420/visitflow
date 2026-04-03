@@ -10,7 +10,7 @@ const buildCsp = () => {
     `script-src 'self' 'unsafe-inline'${isLocal ? " 'unsafe-eval'" : ""}${!isProd || isVercelPreview ? " https://vercel.live" : ""} https://js.stripe.com`,
     `script-src-elem 'self' 'unsafe-inline'${!isProd || isVercelPreview ? " https://vercel.live" : " https://vercel.live"} https://js.stripe.com`,
     "style-src 'self' 'unsafe-inline'",
-    `font-src 'self' https://r2cdn.perplexity.ai${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
+    `font-src 'self' https://r2cdn.perplexity.ai https://vercel.live`,
     "img-src 'self' blob: data: https:",
     `connect-src 'self' https://*.supabase.co https://api.stripe.com${!isProd || isVercelPreview ? " https://vercel.live" : ""}`,
     `frame-src 'self' https://js.stripe.com https://vercel.live`,
