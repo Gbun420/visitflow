@@ -82,6 +82,8 @@ BRAINTRUST_PROJECT_ID="..."
 
 1. **Push to GitHub:** Vercel will auto-deploy.
 2. **Database:** Ensure `DATABASE_URL` in Vercel points to your production Postgres instance.
-3. **Webhooks:** Configure your Stripe and Trigger.dev webhooks to point to your production domain.
+3. **Dual Environment Variables:** 
+   > **IMPORTANT:** You must set your environment variables (like `DATABASE_URL`, `RESEND_API_KEY`, `OPENAI_API_KEY`) in **BOTH** the Vercel Dashboard and the [Trigger.dev Dashboard](https://cloud.trigger.dev) under Project Settings > Environment Variables.
+4. **Webhooks:** Configure your Stripe and Trigger.dev webhooks to point to your production domain.
 \n# Last Production Update: Fri Apr  3 18:16:10 CEST 2026
 \n# Last Email Config Update: Fri Apr  3 18:53:56 CEST 2026
