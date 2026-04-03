@@ -23,7 +23,7 @@ KEYCLOAK_CLIENT_SECRET="your-client-secret"
 
 ### 3. Background Jobs (Trigger.dev)
 ```env
-TRIGGER_API_KEY="tr_dev_..."
+TRIGGER_SECRET_KEY="tr_sk_..."
 ```
 
 ### 4. Emails (Resend)
