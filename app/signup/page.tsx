@@ -42,7 +42,6 @@ export default function SignupPage() {
         throw new Error(data.error || 'Something went wrong')
       }
 
-      // Automatically sign in after signup
       const result = await signIn('credentials', {
         redirect: false,
         email: form.email,
@@ -67,51 +66,53 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 p-4">
-      <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tight mb-8">
-        <Image src="/icon.svg" alt="PayrollPal Malta Logo" width={40} height={40} className="rounded-xl shadow-md" />
-        <span>PayrollPal <span className="text-primary">Malta</span></span>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50/50 p-4">
+      <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tight mb-8 hover:opacity-80 transition-opacity">
+        <Image src="/icon.svg" alt="VisitFlow Logo" width={40} height={40} className="rounded-xl shadow-md" />
+        <span>VisitFlow</span>
       </Link>
 
-      <Card className="w-full max-w-md shadow-xl border-2">
+      <Card className="w-full max-w-md shadow-2xl border-border bg-white">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold tracking-tight">Create an account</CardTitle>
-          <CardDescription>Enter your details to get started with PayrollPal</CardDescription>
+          <CardTitle className="text-2xl font-bold tracking-tight">Initialize Account</CardTitle>
+          <CardDescription>Secure multi-tenant workforce infrastructure.</CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
           <form onSubmit={handleSubmit} className="grid gap-4">
             {error && (
-              <div className="text-sm text-destructive font-medium p-3 bg-destructive/10 border border-destructive/20 rounded-md text-center">
+              <div className="text-sm text-destructive font-medium p-3 bg-destructive/5 border border-destructive/10 rounded-md text-center">
                 {error}
               </div>
             )}
             <div className="grid gap-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
               <Input
                 id="name"
                 name="name"
                 type="text"
-                placeholder="John Doe"
+                placeholder="Jane Smith"
                 value={form.name}
                 onChange={handleChange}
                 required
+                className="h-12 border-2 focus-visible:ring-primary"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Corporate Email</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="john@example.com"
+                placeholder="jane@company.com"
                 value={form.email}
                 onChange={handleChange}
                 required
                 autoComplete="email"
+                className="h-12 border-2 focus-visible:ring-primary"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Master Password</Label>
               <Input
                 id="password"
                 name="password"
@@ -120,10 +121,11 @@ export default function SignupPage() {
                 onChange={handleChange}
                 required
                 autoComplete="new-password"
+                className="h-12 border-2 focus-visible:ring-primary"
               />
             </div>
-            <Button type="submit" className="w-full py-6 font-semibold" disabled={loading}>
-              {loading ? 'Creating account…' : 'Sign Up'}
+            <Button type="submit" className="w-full h-12 font-bold shadow-lg shadow-primary/20" disabled={loading}>
+              {loading ? 'Provisioning...' : 'Create Account'}
             </Button>
           </form>
 
@@ -131,19 +133,19 @@ export default function SignupPage() {
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+            <div className="relative flex justify-center text-[10px] uppercase font-black tracking-[0.2em]">
+              <span className="bg-white px-4 text-muted-foreground">Protocol Fallback</span>
             </div>
           </div>
 
-          <Button variant="outline" onClick={handleKeycloak} className="w-full py-6">
+          <Button variant="outline" onClick={handleKeycloak} className="w-full h-12 border-2 font-semibold">
              Keycloak SSO
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">
-            Already have an account?{' '}
-            <Link href="/login" className="text-primary hover:underline font-medium">
-              Log in
+            Existing infrastructure?{' '}
+            <Link href="/login" className="text-primary hover:underline font-bold">
+              Access Portal
             </Link>
           </p>
         </CardContent>

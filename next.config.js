@@ -58,6 +58,10 @@ const nextConfig = {
             value: "nosniff",
           },
           {
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
+          },
+          {
             key: "Referrer-Policy",
             value: "strict-origin-when-cross-origin",
           },
