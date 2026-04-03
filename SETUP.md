@@ -81,3 +81,4 @@ OPENAI_API_KEY="sk-..."
 1. **Push to GitHub:** Vercel will auto-deploy.
 2. **Database:** Ensure `DATABASE_URL` in Vercel points to your production Postgres instance.
 3. **Webhooks:** Configure your Stripe and Trigger.dev webhooks to point to your production domain.
+\n# Last Production Update: Fri Apr  3 18:16:10 CEST 2026
