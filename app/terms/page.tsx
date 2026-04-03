@@ -11,47 +11,40 @@ export default function TermsPage() {
         
         <div className="space-y-8 text-slate-600 leading-relaxed text-sm">
           <section>
-            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">1. Agreement Scope</h2>
+            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">1. Agreement Context</h2>
             <p>
-              By accessing the PayrollPal Malta infrastructure (&quot;the Service&quot;), you enter into a binding Master Service Agreement with PayrollPal Malta Technologies. This agreement governs your use of our automated Maltese payroll systems and compliance frameworks.
+              By accessing the PayrollPal Malta infrastructure (&quot;the Service&quot;), you enter into a binding Master Service Agreement with PayrollPal Malta Technologies. This agreement governs your use of our automated Maltese payroll systems, compliance frameworks, and workforce analytics.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">2. System Specification</h2>
+            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">2. System Scope</h2>
             <p>
-              PayrollPal Malta provides a high-availability, multi-tenant workforce capital management platform specifically tailored for the Maltese regulatory environment. Core features include automated FSS/MSSS calculations, FS3/FS5 generation, and asynchronous processing engines.
+              PayrollPal Malta provides a high-availability workforce management platform specifically tailored for the Maltese regulatory environment. Core specifications include automated FSS/MSSS calculations, FS3/FS5 generation, and durable asynchronous processing engines.
             </p>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">3. Regulatory Compliance</h2>
+            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">3. Client Obligations</h2>
             <p>Clients are responsible for:</p>
-            <ul className="list-disc pl-6 space-y-2 font-medium">
-              <li>Accuracy of organization and employee data entry.</li>
+            <ul className="list-disc pl-6 space-y-2 font-medium text-slate-700">
+              <li>Input precision of corporate identity and workforce capital data.</li>
               <li>Compliance with the Employment and Industrial Relations Act (Cap. 452).</li>
-              <li>Verification of FSS tax and Social Security contributions prior to submission.</li>
+              <li>Verification of FSS tax and Social Security contributions prior to fiscal submission.</li>
               <li>Adherence to Legal Notice 274 of 2018 regarding itemised payslips.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">4. Jurisdictional Data</h2>
+            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">4. Jurisdictional Application</h2>
             <p>
-              The Service is optimized for entities operating within the jurisdiction of Malta. All calculations are performed based on the 2026 fiscal standards provided by the Malta Commissioner for Revenue.
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">5. Liability Framework</h2>
-            <p>
-              PayrollPal Malta is a precision tool for administrative assistance. Ultimate legal accountability for tax filings and workforce payments remains with the Client. PayrollPal Malta Technologies disclaims liability for penalties arising from jurisdictional misinterpretations.
+              The Service is optimized exclusively for entities operating within the jurisdiction of Malta. All calculations are performed based on the 2026 fiscal standards provided by the Malta Commissioner for Revenue.
             </p>
           </section>
 
           <section className="pt-8 border-t border-slate-100">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
-              Legal inquiries: <Link href="mailto:legal@payrollpal.mt" className="text-primary hover:underline">legal@payrollpal.mt</Link>
+              Legal Counsel: <Link href="mailto:legal@payrollpal.mt" className="text-primary hover:underline">legal@payrollpal.mt</Link>
             </p>
           </section>
         </div>

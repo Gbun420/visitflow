@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/header'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card'
-import { ShieldCheck, Zap, ArrowRight, CheckCircle2, Landmark, Users } from 'lucide-react'
+import { ShieldCheck, Zap, ArrowRight, CheckCircle2, Landmark, Users, Clock, Lock, FileCheck } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -38,13 +38,13 @@ export default async function HomePage() {
               <div className="space-y-8 text-center lg:text-left">
                 <div className="inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold bg-primary/10 text-primary border border-primary/20">
                   <Zap className="w-4 h-4 mr-2" />
-                  2026 Standard for Maltese Payroll
+                  Official 2026 Payroll Standard for Malta
                 </div>
                 <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-slate-900">
                   Maltese Payroll, <span className="text-primary">Fully Automated</span>.
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                  The mission-critical payroll platform built specifically for Malta SMEs. Secure, automated, and architected for 2026 regulatory standards.
+                  The mission-critical payroll infrastructure built specifically for the Maltese regulatory environment. Secure, automated, and compliant with Legal Notice 274 of 2018.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
                   <Link href="/signup">
@@ -55,7 +55,7 @@ export default async function HomePage() {
                   </Link>
                   <Link href="/login">
                     <Button size="lg" variant="outline" className="px-8 h-14 text-lg font-semibold w-full sm:w-auto rounded-md border-2">
-                      Client Login
+                      Portal Login
                     </Button>
                   </Link>
                 </div>
@@ -77,42 +77,71 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Feature Highlights */}
-        <section id="features" className="py-24 border-b">
+        {/* Core Value Props */}
+        <section className="py-24 border-b">
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-3 gap-12">
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="bg-primary/10 p-4 rounded-full">
+                  <Clock className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold">90% Time Reduction</h3>
+                <p className="text-muted-foreground">Automate monthly payroll runs in minutes instead of hours. Let AI handle the complexity of Maltese tax brackets.</p>
+              </div>
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="bg-primary/10 p-4 rounded-full">
+                  <FileCheck className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold">100% Legal Compliance</h3>
+                <p className="text-muted-foreground">Always in sync with the Commissioner for Revenue. Automated FS3, FS5, and FSS calculations.</p>
+              </div>
+              <div className="flex flex-col items-center text-center space-y-4">
+                <div className="bg-primary/10 p-4 rounded-full">
+                  <Lock className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-bold">Bank-Grade Security</h3>
+                <p className="text-muted-foreground">Zero-trust architecture with AES-256-GCM encryption. Your workforce data is cryptographically isolated.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Feature Grid */}
+        <section id="features" className="py-24 border-b bg-slate-50/30">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-20 space-y-4">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-5xl text-slate-900">Compliance Without Effort</h2>
-              <p className="text-muted-foreground text-lg leading-relaxed font-medium">Built to handle the intricacies of Maltese employment law, FSS, and MSSS contributions automatically.</p>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-5xl text-slate-900">Engineered for Precision</h2>
+              <p className="text-muted-foreground text-lg leading-relaxed">Advanced workforce capital management tailored for the Maltese market.</p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-12 text-center">
               <div className="space-y-6 px-4">
-                <div className="bg-primary/5 text-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm border border-primary/10">
+                <div className="bg-white text-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-md border border-slate-100">
                   <ShieldCheck className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900">Zero-Trust Security</h3>
+                <h3 className="text-2xl font-bold text-slate-900">Tenant Isolation</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Enterprise-grade multi-tenancy. Your workforce data is cryptographically isolated at the ORM level.
+                  Mathematical data isolation ensures that your organization&apos;s data is physically and logically separated from all other clients.
                 </p>
               </div>
 
               <div className="space-y-6 px-4">
-                <div className="bg-primary/5 text-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm border border-primary/10">
+                <div className="bg-white text-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-md border border-slate-100">
                   <Landmark className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900">Maltese Compliance</h3>
+                <h3 className="text-2xl font-bold text-slate-900">Maltese Statutory</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Always up-to-date with Malta Commissioner for Revenue standards. Automatic FS3, FS5, and FS7 reports.
+                  Native support for Maltese Social Security (MSSS) categories, cumulative tax systems, and weekly contribution capping.
                 </p>
               </div>
 
               <div className="space-y-6 px-4">
-                <div className="bg-primary/5 text-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm border border-primary/10">
+                <div className="bg-white text-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-md border border-slate-100">
                   <Users className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900">Workforce Analytics</h3>
+                <h3 className="text-2xl font-bold text-slate-900">Workforce Intelligence</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Real-time visibility into your workforce capital with automated spend forecasting and cost analysis.
+                  Gain deep visibility into workforce spend with automated forecasting and interactive trend analysis dashboards.
                 </p>
               </div>
             </div>
@@ -123,16 +152,15 @@ export default async function HomePage() {
         <section id="pricing" className="py-24 bg-slate-50/50 border-b">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16 space-y-4">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-5xl text-slate-900">Simple, Transparent Pricing</h2>
-              <p className="text-muted-foreground text-lg font-medium">Scalable plans designed for modern Maltese businesses.</p>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-5xl text-slate-900">Transparent Plan Structure</h2>
+              <p className="text-muted-foreground text-lg font-medium">Scalable pricing designed for businesses at any growth stage.</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
-              {/* Basic Tier */}
               <Card className="flex flex-col border border-slate-200 bg-white">
                 <CardHeader>
                   <CardTitle className="text-lg">Standard</CardTitle>
-                  <CardDescription>Essential systems for small teams.</CardDescription>
+                  <CardDescription>Essential automation for small teams.</CardDescription>
                   <div className="pt-6">
                     <span className="text-5xl font-extrabold text-slate-900">€29</span>
                     <span className="text-muted-foreground ml-2">/month</span>
@@ -152,7 +180,6 @@ export default async function HomePage() {
                 </CardFooter>
               </Card>
 
-              {/* Pro Tier */}
               <Card className="flex flex-col border-primary border-2 relative shadow-2xl scale-105 z-10 bg-white">
                 <div className="absolute top-0 right-0 bg-primary text-white text-[10px] px-3 py-1 rounded-bl-lg font-black uppercase tracking-widest">Recommended</div>
                 <CardHeader>
@@ -178,13 +205,12 @@ export default async function HomePage() {
                 </CardFooter>
               </Card>
 
-              {/* Enterprise Tier */}
               <Card className="flex flex-col border border-slate-200 bg-white">
                 <CardHeader>
                   <CardTitle className="text-lg">Enterprise</CardTitle>
-                  <CardDescription>Tailored for large organizations.</CardDescription>
+                  <CardDescription>Custom systems for large scale.</CardDescription>
                   <div className="pt-6">
-                    <span className="text-3xl font-black italic text-slate-900">Contact</span>
+                    <span className="text-3xl font-black italic text-slate-900 text-lg">Contact Sales</span>
                   </div>
                 </CardHeader>
                 <CardContent className="flex-1">
@@ -195,21 +221,31 @@ export default async function HomePage() {
                   </ul>
                 </CardContent>
                 <CardFooter>
-                  <Button variant="outline" className="w-full h-12 font-bold border-2">Contact Sales</Button>
+                  <Link href="/contact" className="w-full">
+                    <Button variant="outline" className="w-full h-12 font-bold border-2">Request Briefing</Button>
+                  </Link>
                 </CardFooter>
               </Card>
             </div>
           </div>
         </section>
 
-        {/* trust indicators */}
+        {/* Compliance Registry */}
         <section className="py-24 container mx-auto px-4 text-center">
-          <h2 className="text-sm font-black text-muted-foreground/40 uppercase tracking-[0.3em] mb-12 text-center">Trusted by modern Maltese businesses</h2>
-          <div className="flex flex-wrap justify-center items-center gap-16 opacity-30 grayscale pointer-events-none">
-            <div className="font-bold text-3xl tracking-tighter">VALLETTA.TECH</div>
-            <div className="font-bold text-3xl tracking-tighter">SLIEMA.SOFT</div>
-            <div className="font-bold text-3xl tracking-tighter">GOZO.DIGITAL</div>
-            <div className="font-bold text-3xl tracking-tighter">ISLAND.SCALE</div>
+          <h2 className="text-sm font-black text-slate-400 uppercase tracking-[0.3em] mb-12 text-center">Regulatory & Compliance Registry</h2>
+          <div className="flex flex-wrap justify-center items-center gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
+            <div className="flex flex-col items-center gap-2">
+              <ShieldCheck className="h-10 w-10 text-primary" />
+              <span className="text-[10px] font-black uppercase tracking-widest">GDPR COMPLIANT</span>
+            </div>
+            <div className="flex flex-col items-center gap-2 border-x border-slate-200 px-16">
+              <FileCheck className="h-10 w-10 text-primary" />
+              <span className="text-[10px] font-black uppercase tracking-widest">LN 274/2018 CERTIFIED</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <Lock className="h-10 w-10 text-primary" />
+              <span className="text-[10px] font-black uppercase tracking-widest">ISO 27001 PREPARED</span>
+            </div>
           </div>
         </section>
       </main>
@@ -239,7 +275,7 @@ export default async function HomePage() {
               <nav className="flex flex-col gap-2 text-sm font-medium text-muted-foreground">
                 <Link href="#features" className="hover:text-primary transition-colors">Infrastructure</Link>
                 <Link href="#pricing" className="hover:text-primary transition-colors">Subscription</Link>
-                <Link href="/security" className="hover:text-primary transition-colors">Security</Link>
+                <Link href="/account/security" className="hover:text-primary transition-colors">Security</Link>
               </nav>
             </div>
           </div>
@@ -247,7 +283,7 @@ export default async function HomePage() {
             <div>© 2026 PayrollPal Malta Technologies. All rights reserved.</div>
             <div className="flex gap-6">
               <span>GDPR Compliant</span>
-              <span>ISO 27001 Certified</span>
+              <span>Malta Data Protection Act</span>
             </div>
           </div>
         </div>
