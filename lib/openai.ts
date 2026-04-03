@@ -1,8 +1,9 @@
 import OpenAI from 'openai'
+import { wrapOpenAI } from "braintrust"
 
-export const openai = new OpenAI({
+export const openai = wrapOpenAI(new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'dummy_key_for_build',
-})
+}))
 
 export async function generateText(prompt: string, system = 'You are a helpful assistant.'): Promise<string> {
   const response = await openai.chat.completions.create({

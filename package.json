@@ -32,6 +32,7 @@
     "@zenstackhq/runtime": "2.22.1",
     "@zenstackhq/swr": "^2.22.1",
     "bcryptjs": "^3.0.3",
+    "braintrust": "^3.7.1",
     "bufferutil": "^4.0.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

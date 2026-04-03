@@ -44,9 +44,11 @@ STRIPE_PRICE_PRO="price_..."
 STRIPE_PRICE_ENTERPRISE="price_..."
 ```
 
-### 6. AI (OpenAI)
+### 6. AI (OpenAI & Braintrust)
 ```env
 OPENAI_API_KEY="sk-..."
+BRAINTRUST_API_KEY="bt-st-..."
+BRAINTRUST_PROJECT_ID="..."
 ```
 
 ## 🚀 Local Development
