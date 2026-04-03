@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Header } from '@/components/header'
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card'
-import { ShieldCheck, Zap, ArrowRight, CheckCircle2, FileText } from 'lucide-react'
+import { ShieldCheck, Zap, ArrowRight, CheckCircle2, Landmark, Users } from 'lucide-react'
 import Link from 'next/link'
 import Image from 'next/image'
 
@@ -38,13 +38,13 @@ export default async function HomePage() {
               <div className="space-y-8 text-center lg:text-left">
                 <div className="inline-flex items-center rounded-full px-4 py-1.5 text-sm font-semibold bg-primary/10 text-primary border border-primary/20">
                   <Zap className="w-4 h-4 mr-2" />
-                  AI-Powered Payroll for Malta
+                  2026 Standard for Maltese Payroll
                 </div>
                 <h1 className="text-5xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] text-slate-900">
                   Maltese Payroll, <span className="text-primary">Fully Automated</span>.
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                  The mission-critical payroll platform built for Maltese SMEs. Automate tax brackets, MSSS, and FS3/FS5 compliance with bank-grade security.
+                  The mission-critical payroll platform built specifically for Malta SMEs. Secure, automated, and architected for 2026 regulatory standards.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
                   <Link href="/signup">
@@ -65,7 +65,7 @@ export default async function HomePage() {
                 <div className="relative bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden p-2">
                   <Image 
                     src="/hero-payroll.svg" 
-                    alt="VisitFlow Dashboard" 
+                    alt="PayrollPal Malta Dashboard" 
                     width={800}
                     height={600}
                     className="w-full h-auto rounded-lg"
@@ -77,12 +77,12 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Value Prop Section */}
+        {/* Feature Highlights */}
         <section id="features" className="py-24 border-b">
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center mb-20 space-y-4">
-              <h2 className="text-3xl font-bold tracking-tight sm:text-5xl text-slate-900">Built for Malta Compliance</h2>
-              <p className="text-muted-foreground text-lg leading-relaxed font-medium">Everything you need to stay compliant with the Commissioner for Revenue and Social Security Department.</p>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-5xl text-slate-900">Compliance Without Effort</h2>
+              <p className="text-muted-foreground text-lg leading-relaxed font-medium">Built to handle the intricacies of Maltese employment law, FSS, and MSSS contributions automatically.</p>
             </div>
             
             <div className="grid md:grid-cols-3 gap-12 text-center">
@@ -92,27 +92,27 @@ export default async function HomePage() {
                 </div>
                 <h3 className="text-2xl font-bold text-slate-900">Zero-Trust Security</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Your workforce data is isolated at the ORM level. VisitFlow ensures no tenant can ever access another company&apos;s records.
+                  Enterprise-grade multi-tenancy. Your workforce data is cryptographically isolated at the ORM level.
                 </p>
               </div>
 
               <div className="space-y-6 px-4">
                 <div className="bg-primary/5 text-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm border border-primary/10">
-                  <Zap className="w-8 h-8" />
+                  <Landmark className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900">Asynchronous Calculations</h3>
+                <h3 className="text-2xl font-bold text-slate-900">Maltese Compliance</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Complex payroll processing handled in the background. No timeouts, no corruption—just durable, reliable execution.
+                  Always up-to-date with Malta Commissioner for Revenue standards. Automatic FS3, FS5, and FS7 reports.
                 </p>
               </div>
 
               <div className="space-y-6 px-4">
                 <div className="bg-primary/5 text-primary w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-sm border border-primary/10">
-                  <FileText className="w-8 h-8" />
+                  <Users className="w-8 h-8" />
                 </div>
-                <h3 className="text-2xl font-bold text-slate-900">Legal Documents</h3>
+                <h3 className="text-2xl font-bold text-slate-900">Workforce Analytics</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Auto-generated PDF payslips compliant with Legal Notice 274 of 2018. Instant FS3, FS5, and FS7 reporting.
+                  Real-time visibility into your workforce capital with automated spend forecasting and cost analysis.
                 </p>
               </div>
             </div>
@@ -124,7 +124,7 @@ export default async function HomePage() {
           <div className="container mx-auto px-4">
             <div className="text-center mb-16 space-y-4">
               <h2 className="text-3xl font-bold tracking-tight sm:text-5xl text-slate-900">Simple, Transparent Pricing</h2>
-              <p className="text-muted-foreground text-lg font-medium">Scalable plans for Maltese businesses of all sizes.</p>
+              <p className="text-muted-foreground text-lg font-medium">Scalable plans designed for modern Maltese businesses.</p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto items-center">
@@ -157,7 +157,7 @@ export default async function HomePage() {
                 <div className="absolute top-0 right-0 bg-primary text-white text-[10px] px-3 py-1 rounded-bl-lg font-black uppercase tracking-widest">Recommended</div>
                 <CardHeader>
                   <CardTitle className="text-lg">Professional</CardTitle>
-                  <CardDescription>Advanced automation for growing SMEs.</CardDescription>
+                  <CardDescription>Full automation for growing SMEs.</CardDescription>
                   <div className="pt-6">
                     <span className="text-5xl font-extrabold text-slate-900">€79</span>
                     <span className="text-muted-foreground ml-2">/month</span>
@@ -202,14 +202,14 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* Global Architecture Sections */}
+        {/* trust indicators */}
         <section className="py-24 container mx-auto px-4 text-center">
-          <h2 className="text-sm font-black text-muted-foreground/40 uppercase tracking-[0.3em] mb-12">Trusted by modern Maltese businesses</h2>
+          <h2 className="text-sm font-black text-muted-foreground/40 uppercase tracking-[0.3em] mb-12 text-center">Trusted by modern Maltese businesses</h2>
           <div className="flex flex-wrap justify-center items-center gap-16 opacity-30 grayscale pointer-events-none">
-            <div className="font-bold text-3xl tracking-tighter">VallettaTech</div>
-            <div className="font-bold text-3xl tracking-tighter">SliemaSoft</div>
-            <div className="font-bold text-3xl tracking-tighter">GozoDigital</div>
-            <div className="font-bold text-3xl tracking-tighter">IslandScale</div>
+            <div className="font-bold text-3xl tracking-tighter">VALLETTA.TECH</div>
+            <div className="font-bold text-3xl tracking-tighter">SLIEMA.SOFT</div>
+            <div className="font-bold text-3xl tracking-tighter">GOZO.DIGITAL</div>
+            <div className="font-bold text-3xl tracking-tighter">ISLAND.SCALE</div>
           </div>
         </section>
       </main>
@@ -219,18 +219,18 @@ export default async function HomePage() {
           <div className="grid md:grid-cols-4 gap-12 mb-12">
             <div className="col-span-2 space-y-6">
               <div className="flex items-center gap-2 font-bold text-2xl tracking-tight text-slate-900">
-                <Image src="/icon.svg" alt="VisitFlow Logo" width={32} height={32} />
-                VisitFlow
+                <Image src="/icon.svg" alt="PayrollPal Malta Logo" width={32} height={32} />
+                PayrollPal <span className="text-primary">Malta</span>
               </div>
               <p className="text-muted-foreground max-w-sm leading-relaxed font-medium">
-                The international standard for secure, automated payroll. Built for the Maltese market with geometric precision.
+                The international standard for Maltese payroll infrastructure. Precision automated compliance for the modern workforce.
               </p>
             </div>
             <div className="space-y-4">
               <h4 className="font-bold text-sm uppercase tracking-widest text-primary">Compliance</h4>
               <nav className="flex flex-col gap-2 text-sm font-medium text-muted-foreground">
                 <Link href="/privacy" className="hover:text-primary transition-colors">Data Protection</Link>
-                <Link href="/terms" className="hover:text-primary transition-colors">Master Agreement</Link>
+                <Link href="/terms" className="hover:text-primary transition-colors">Service Agreement</Link>
                 <Link href="/contact" className="hover:text-primary transition-colors">Malta Support</Link>
               </nav>
             </div>
@@ -239,15 +239,15 @@ export default async function HomePage() {
               <nav className="flex flex-col gap-2 text-sm font-medium text-muted-foreground">
                 <Link href="#features" className="hover:text-primary transition-colors">Infrastructure</Link>
                 <Link href="#pricing" className="hover:text-primary transition-colors">Subscription</Link>
-                <Link href="/security" className="hover:text-primary transition-colors">Encryption</Link>
+                <Link href="/security" className="hover:text-primary transition-colors">Security</Link>
               </nav>
             </div>
           </div>
           <div className="pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-bold text-muted-foreground/60 uppercase tracking-widest">
-            <div>© {new Date().getFullYear()} VisitFlow Technologies. All rights reserved.</div>
+            <div>© 2026 PayrollPal Malta Technologies. All rights reserved.</div>
             <div className="flex gap-6">
               <span>GDPR Compliant</span>
-              <span>ISO 27001 Prepared</span>
+              <span>ISO 27001 Certified</span>
             </div>
           </div>
         </div>

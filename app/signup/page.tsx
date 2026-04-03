@@ -66,18 +66,18 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50/50 p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50/50 p-4 font-sans">
       <Link href="/" className="flex items-center gap-2 font-bold text-2xl tracking-tight mb-8 hover:opacity-80 transition-opacity">
-        <Image src="/icon.svg" alt="VisitFlow Logo" width={40} height={40} className="rounded-xl shadow-md" />
-        <span>VisitFlow</span>
+        <Image src="/icon.svg" alt="PayrollPal Malta Logo" width={40} height={40} className="rounded-xl shadow-md" />
+        <span>PayrollPal <span className="text-primary">Malta</span></span>
       </Link>
 
-      <Card className="w-full max-w-md shadow-2xl border-border bg-white">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold tracking-tight">Initialize Account</CardTitle>
-          <CardDescription>Secure multi-tenant workforce infrastructure.</CardDescription>
+      <Card className="w-full max-w-md shadow-2xl border-slate-200 bg-white">
+        <CardHeader className="space-y-1 text-center border-b border-slate-50 pb-8">
+          <CardTitle className="text-2xl font-bold tracking-tight text-slate-900">Initialize Account</CardTitle>
+          <CardDescription className="font-medium">Secure payroll infrastructure for 2026.</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-6">
+        <CardContent className="grid gap-6 pt-8">
           <form onSubmit={handleSubmit} className="grid gap-4">
             {error && (
               <div className="text-sm text-destructive font-medium p-3 bg-destructive/5 border border-destructive/10 rounded-md text-center">
@@ -85,34 +85,34 @@ export default function SignupPage() {
               </div>
             )}
             <div className="grid gap-2">
-              <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Full Name</Label>
+              <Label htmlFor="name" className="text-xs font-bold uppercase tracking-widest text-slate-400">Organization Administrator</Label>
               <Input
                 id="name"
                 name="name"
                 type="text"
-                placeholder="Jane Smith"
+                placeholder="Name"
                 value={form.name}
                 onChange={handleChange}
                 required
-                className="h-12 border-2 focus-visible:ring-primary"
+                className="h-12 border-slate-200 focus-visible:ring-primary"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Corporate Email</Label>
+              <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-slate-400">Corporate Email</Label>
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="jane@company.com"
+                placeholder="email@company.com"
                 value={form.email}
                 onChange={handleChange}
                 required
                 autoComplete="email"
-                className="h-12 border-2 focus-visible:ring-primary"
+                className="h-12 border-slate-200 focus-visible:ring-primary"
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Master Password</Label>
+              <Label htmlFor="password" className="text-xs font-bold uppercase tracking-widest text-slate-400">Access Key</Label>
               <Input
                 id="password"
                 name="password"
@@ -121,35 +121,38 @@ export default function SignupPage() {
                 onChange={handleChange}
                 required
                 autoComplete="new-password"
-                className="h-12 border-2 focus-visible:ring-primary"
+                className="h-12 border-slate-200 focus-visible:ring-primary"
               />
             </div>
-            <Button type="submit" className="w-full h-12 font-bold shadow-lg shadow-primary/20" disabled={loading}>
+            <Button type="submit" className="w-full h-12 font-bold shadow-lg shadow-primary/20 rounded-md" disabled={loading}>
               {loading ? 'Provisioning...' : 'Create Account'}
             </Button>
           </form>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
+              <span className="w-full border-t border-slate-100" />
             </div>
             <div className="relative flex justify-center text-[10px] uppercase font-black tracking-[0.2em]">
-              <span className="bg-white px-4 text-muted-foreground">Protocol Fallback</span>
+              <span className="bg-white px-4 text-slate-300">Identity Gateway</span>
             </div>
           </div>
 
-          <Button variant="outline" onClick={handleKeycloak} className="w-full h-12 border-2 font-semibold">
-             Keycloak SSO
+          <Button variant="outline" onClick={handleKeycloak} className="w-full h-12 border-2 border-slate-200 font-semibold text-slate-600 hover:bg-slate-50">
+             Keycloak OIDC
           </Button>
 
-          <p className="text-center text-sm text-muted-foreground">
-            Existing infrastructure?{' '}
+          <p className="text-center text-sm text-slate-500">
+            Existing organization?{' '}
             <Link href="/login" className="text-primary hover:underline font-bold">
               Access Portal
             </Link>
           </p>
         </CardContent>
       </Card>
+      <div className="mt-8 text-[10px] font-bold text-slate-300 uppercase tracking-widest">
+        © 2026 PayrollPal Malta
+      </div>
     </div>
   )
 }

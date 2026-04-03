@@ -5,53 +5,53 @@ export default function TermsPage() {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container mx-auto px-4 py-16 max-w-4xl">
-        <h1 className="text-4xl font-bold mb-8 text-primary">Master Service Agreement</h1>
-        <p className="text-muted-foreground mb-6 font-mono text-xs uppercase tracking-widest">Last Updated: April 3, 2026</p>
+      <main className="container mx-auto px-4 py-16 max-w-4xl font-sans">
+        <h1 className="text-4xl font-bold mb-8 text-primary tracking-tight">Master Service Agreement</h1>
+        <p className="text-muted-foreground mb-6 font-mono text-[10px] uppercase tracking-widest font-bold">Last Updated: April 3, 2026</p>
         
-        <div className="space-y-8 text-foreground/80 leading-relaxed text-sm">
+        <div className="space-y-8 text-slate-600 leading-relaxed text-sm">
           <section>
-            <h2 className="text-xl font-bold mb-4 text-foreground uppercase tracking-wider">1. Master Agreement</h2>
+            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">1. Agreement Scope</h2>
             <p>
-              By accessing or utilizing the VisitFlow infrastructure (&quot;the Service&quot;), you enter into a binding Master Service Agreement with VisitFlow Technologies. If you are executing this agreement on behalf of a corporate entity, you represent that you hold the requisite authority to bind such entity to these terms.
+              By accessing the PayrollPal Malta infrastructure (&quot;the Service&quot;), you enter into a binding Master Service Agreement with PayrollPal Malta Technologies. This agreement governs your use of our automated Maltese payroll systems and compliance frameworks.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold mb-4 text-foreground uppercase tracking-wider">2. System Specification</h2>
+            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">2. System Specification</h2>
             <p>
-              VisitFlow provides a high-availability, multi-tenant workforce capital management platform. Core specifications include automated regulatory calculations, cryptographic documentation generation, and fiscal auditing frameworks.
+              PayrollPal Malta provides a high-availability, multi-tenant workforce capital management platform specifically tailored for the Maltese regulatory environment. Core features include automated FSS/MSSS calculations, FS3/FS5 generation, and asynchronous processing engines.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold mb-4 text-foreground uppercase tracking-wider">3. Client Obligations</h2>
+            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">3. Regulatory Compliance</h2>
             <p>Clients are responsible for:</p>
             <ul className="list-disc pl-6 space-y-2 font-medium">
-              <li>Input precision of corporate and workforce data.</li>
-              <li>Integrity of authentication credentials and administrative access.</li>
-              <li>Compliance with all jurisdictional labor and fiscal regulations applicable to their operations.</li>
-              <li>Verification of system-generated reports prior to regulatory submission.</li>
+              <li>Accuracy of organization and employee data entry.</li>
+              <li>Compliance with the Employment and Industrial Relations Act (Cap. 452).</li>
+              <li>Verification of FSS tax and Social Security contributions prior to submission.</li>
+              <li>Adherence to Legal Notice 274 of 2018 regarding itemised payslips.</li>
             </ul>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold mb-4 text-foreground uppercase tracking-wider">4. Financial Terms</h2>
+            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">4. Jurisdictional Data</h2>
             <p>
-              Access to infrastructure tiers is governed by subscription protocols. All financial transactions are processed through verified settlement providers. Fees are non-refundable unless specified otherwise by relevant jurisdictional law. VisitFlow reserves the right to adjust fiscal parameters with thirty (30) days notice.
+              The Service is optimized for entities operating within the jurisdiction of Malta. All calculations are performed based on the 2026 fiscal standards provided by the Malta Commissioner for Revenue.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-bold mb-4 text-foreground uppercase tracking-wider">5. Liability Framework</h2>
+            <h2 className="text-lg font-bold mb-4 text-slate-900 uppercase tracking-wider">5. Liability Framework</h2>
             <p>
-              VisitFlow is a tool for professional administrative assistance. Final regulatory compliance and legal accountability remain the sole responsibility of the Client. VisitFlow Technologies disclaims liability for fiscal penalties arising from data inaccuracies or jurisdictional misinterpretations.
+              PayrollPal Malta is a precision tool for administrative assistance. Ultimate legal accountability for tax filings and workforce payments remains with the Client. PayrollPal Malta Technologies disclaims liability for penalties arising from jurisdictional misinterpretations.
             </p>
           </section>
 
-          <section className="pt-8 border-t border-border">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
-              Legal inquiries should be directed to <Link href="mailto:legal@visitflow.io" className="text-primary hover:underline">legal@visitflow.io</Link>.
+          <section className="pt-8 border-t border-slate-100">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">
+              Legal inquiries: <Link href="mailto:legal@payrollpal.mt" className="text-primary hover:underline">legal@payrollpal.mt</Link>
             </p>
           </section>
         </div>
