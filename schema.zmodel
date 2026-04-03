@@ -137,7 +137,6 @@ model Employee {
   taxId          String?
   employmentType EmploymentType
   salaryGross    Decimal        @default(0)
-  base_salary_amount Float      @gt(0)
   startDate      DateTime
   endDate        DateTime?
   companyId      String

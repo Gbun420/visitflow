@@ -42,7 +42,7 @@ export const runPayrollTask = task({
 
     // 3. Process each employee
     for (const employee of employees) {
-      const annualSalary = Number(employee.base_salary_amount) || 0;
+      const annualSalary = Number(employee.salaryGross) || 0;
       const monthlyGross = annualSalary / 12;
       const taxRate = 0.20; // 20% flat tax for MVP
       const taxAmount = monthlyGross * taxRate;

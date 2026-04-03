@@ -21,7 +21,7 @@ export async function addEmployee(data: EmployeeFormValues) {
     await prisma.employee.create({
       data: {
         ...validatedData,
-        salaryGross: validatedData.base_salary_amount, // Map to salaryGross
+        salaryGross: validatedData.salary, // Map to salaryGross
         companyId,
         startDate: new Date(validatedData.startDate),
       },

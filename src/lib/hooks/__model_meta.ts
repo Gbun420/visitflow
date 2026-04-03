@@ -362,9 +362,6 @@ const metadata: ModelMeta = {
                     name: "salaryGross",
                     type: "Decimal",
                     attributes: [{ "name": "@default", "args": [{ "name": "value", "value": 0 }] }],
-                }, base_salary_amount: {
-                    name: "base_salary_amount",
-                    type: "Float",
                 }, startDate: {
                     name: "startDate",
                     type: "DateTime",
