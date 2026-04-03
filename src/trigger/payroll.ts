@@ -4,12 +4,16 @@ import { Resend } from 'resend';
 import React from 'react';
 import PayslipReady from "@/emails/PayslipReady";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const resend = new Resend(process.env.RESEND_API_KEY || 're_dummy');
 
 export const runPayrollTask = task({
   id: "run-payroll",
   run: async (payload: { companyId: string }) => {
     const { companyId } = payload;
+
+    if (!process.env.RESEND_API_KEY) {
+      logger.warn("RESEND_API_KEY not set, emails will not be sent.");
+    }
 
     // 1. Fetch all employees for this company
     const employees = await prisma.employee.findMany({
