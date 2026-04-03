@@ -84,3 +84,4 @@ BRAINTRUST_PROJECT_ID="..."
 2. **Database:** Ensure `DATABASE_URL` in Vercel points to your production Postgres instance.
 3. **Webhooks:** Configure your Stripe and Trigger.dev webhooks to point to your production domain.
 \n# Last Production Update: Fri Apr  3 18:16:10 CEST 2026
+\n# Last Email Config Update: Fri Apr  3 18:53:56 CEST 2026
