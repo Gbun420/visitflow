@@ -62,18 +62,27 @@ export default async function DashboardPage() {
       companyId,
       periodStart: { gte: sixMonthsAgo },
     },
-    include: { entries: true },
+    include: { 
+      entries: {
+        select: { totalCost: true }
+      } 
+    },
     orderBy: { periodStart: 'asc' },
   })
 
-  // Group by month
+  // Group by month - more efficient mapping
   const chartData = Array.from({ length: 6 }).map((_, i) => {
     const monthDate = startOfMonth(subMonths(new Date(), 5 - i))
     const monthLabel = format(monthDate, 'MMM yyyy')
     
-    const monthTotal = historicalRuns
-      .filter(run => format(new Date(run.periodStart), 'MMM yyyy') === monthLabel)
-      .reduce((sum, run) => sum + run.entries.reduce((eSum, entry) => eSum + Number(entry.totalCost), 0), 0)
+    let monthTotal = 0
+    historicalRuns.forEach(run => {
+      if (format(new Date(run.periodStart), 'MMM yyyy') === monthLabel) {
+        run.entries.forEach(e => {
+          monthTotal += Number(e.totalCost)
+        })
+      }
+    })
 
     return {
       month: monthLabel,

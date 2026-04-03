@@ -27,8 +27,8 @@ export async function addEmployee(data: EmployeeFormValues) {
       },
     })
 
-    revalidatePath('/dashboard/employees')
     revalidatePath('/dashboard')
+    revalidatePath('/dashboard/employees')
     
     return { success: true }
   } catch (error: any) {
