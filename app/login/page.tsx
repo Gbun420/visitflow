@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { signIn } from 'next-auth/react'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -43,7 +44,10 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-lg border-2">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold tracking-tight text-center">PayrollPal Malta</CardTitle>
+          <div className="flex justify-center mb-4">
+            <Image src="/icon.svg" alt="PayrollPal Malta Logo" width={48} height={48} className="rounded-xl shadow-sm" />
+          </div>
+          <CardTitle className="text-2xl font-bold tracking-tight text-center">PayrollPal <span className="text-primary">Malta</span></CardTitle>
           <p className="text-center text-sm text-muted-foreground">Sign in with your Keycloak identity or credentials</p>
         </CardHeader>
         <CardContent className="grid gap-4">

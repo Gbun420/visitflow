@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { redirect } from 'next/navigation'
 import { getCurrentUser } from '@/lib/auth'
 import { getAuthenticatedLandingPath } from '@/lib/navigation'
@@ -214,7 +215,10 @@ export default async function HomePage() {
 
       <footer className="border-t py-12 bg-background">
         <div className="container px-4 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="font-bold text-xl">PayrollPal Malta</div>
+          <div className="flex items-center gap-2 font-bold text-xl">
+            <Image src="/icon.svg" alt="PayrollPal Malta Logo" width={24} height={24} className="rounded-sm opacity-80" />
+            PayrollPal Malta
+          </div>
           <div className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} PayrollPal Malta. All rights reserved.
           </div>
