@@ -42,6 +42,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing periodStart or periodEnd' }, { status: 400 })
     }
 
+    const existingRun = await prisma.payrollRun.findFirst({
+      where: { companyId, periodStart: new Date(periodStart), periodEnd: new Date(periodEnd) }
+    })
+    if (existingRun) {
+      return NextResponse.json({ error: 'A payroll run for this period already exists' }, { status: 409 })
+    }
+
     const run = await prisma.payrollRun.create({
       data: {
         periodStart: new Date(periodStart),
@@ -51,20 +58,19 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    // Create placeholder entries for all employees
+    // Create placeholder entries for all employees efficiently
     const employees = await prisma.employee.findMany({ where: { companyId } })
-    for (const emp of employees) {
-      const grossPeriod = Number(emp.salaryGross) / 12
-      await prisma.payrollEntry.create({
-        data: {
+    if (employees.length > 0) {
+      await prisma.payrollEntry.createMany({
+        data: employees.map(emp => ({
           payrollRunId: run.id,
           employeeId: emp.id,
-          salaryGross: grossPeriod,
+          salaryGross: Number(emp.salaryGross) / 12,
           tax: 0,
           socialSecurity: 0,
           netPay: 0,
           totalCost: 0,
-        },
+        }))
       })
     }
 

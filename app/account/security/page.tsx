@@ -26,12 +26,12 @@ export default function SecurityPage() {
                 <AlertCircle className="h-8 w-8 text-primary" />
             </div>
             <div className="space-y-2">
-                <h3 className="text-lg font-semibold">Supabase MFA Transition</h3>
+                <h3 className="text-lg font-semibold">Identity Management</h3>
                 <p className="text-sm text-muted-foreground max-w-sm">
-                    We are currently migrating our security platform to Supabase. Multi-factor authentication (MFA) settings will be available shortly.
+                    VisitFlow uses <strong>Keycloak</strong> for secure identity and access management.
                 </p>
-                <p className="text-xs text-muted-foreground italic mt-4">
-                    Your account remains protected by your session and primary credentials.
+                <p className="text-sm text-muted-foreground max-w-sm">
+                    To update your password, enable MFA, or manage sessions, please use your organization&apos;s identity management console or contact your administrator.
                 </p>
             </div>
           </div>

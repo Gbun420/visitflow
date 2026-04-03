@@ -6,6 +6,10 @@ import { PayrollList } from '@/components/payroll-list'
 
 export default async function PayrollPage() {
   const user = await getCurrentUser()
+  if (!user) {
+    redirect('/login')
+  }
+
   const destination = getAuthenticatedLandingPath(user)
   if (destination !== '/dashboard') {
     redirect(destination)

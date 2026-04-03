@@ -9,6 +9,10 @@ import Link from 'next/link'
 
 export default async function DashboardPage() {
   const user = await getCurrentUser()
+  if (!user) {
+    redirect('/login')
+  }
+
   const destination = getAuthenticatedLandingPath(user)
   if (destination !== '/dashboard') {
     redirect(destination)

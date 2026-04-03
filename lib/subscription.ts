@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma'
+import { StripeSubscriptionStatus } from '@prisma/client'
 
 /**
  * Check if company's subscription is active for payroll operations
@@ -10,8 +11,13 @@ export async function requireActiveSubscription(companyId: string) {
     select: { subscriptionStatus: true, subscriptionTier: true },
   })
   if (!company) throw new Error('Company not found')
-  const allowedStatuses: Array<'ACTIVE' | 'TRIALING'> = ['ACTIVE', 'TRIALING']
-  if (!company.subscriptionStatus || !allowedStatuses.includes(company.subscriptionStatus as any)) {
+  
+  const allowedStatuses: StripeSubscriptionStatus[] = [
+    StripeSubscriptionStatus.ACTIVE,
+    StripeSubscriptionStatus.TRIALING
+  ]
+
+  if (!company.subscriptionStatus || !allowedStatuses.includes(company.subscriptionStatus)) {
     throw new Error('Subscription inactive or past due. Please update billing to continue.')
   }
 

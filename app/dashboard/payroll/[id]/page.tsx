@@ -6,6 +6,10 @@ import { PayrollDetailView } from '@/components/payroll-detail-view'
 
 export default async function PayrollRunDetailPage({ params }: { params: { id: string } }) {
   const user = await getCurrentUser()
+  if (!user) {
+    redirect('/login')
+  }
+
   const destination = getAuthenticatedLandingPath(user)
   if (destination !== '/dashboard') {
     redirect(destination)

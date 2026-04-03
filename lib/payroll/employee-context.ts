@@ -1,14 +1,5 @@
-type PayrollEmployee = {
-  id?: string
-  companyId: string
-  employmentType: string
-  firstName: string
-  lastName: string
-  salaryGross: number | string
-}
-
 export function buildEmployeePromptContext(
-  employee: PayrollEmployee | null,
+  employee: any | null,
   companyId: string
 ) {
   if (!employee || employee.companyId !== companyId) {

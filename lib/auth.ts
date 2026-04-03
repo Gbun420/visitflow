@@ -3,8 +3,8 @@ import { prisma } from './prisma'
 import { authOptions } from './auth-nextauth'
 
 /**
- * PHASE 4.X: Core helper for Server Components powered by Supabase
- * Returns the Prisma User with Company if a valid Supabase session exists.
+ * Core helper for Server Components to get the current authenticated user.
+ * Returns the Prisma User with Company if a valid session exists.
  */
 export async function getCurrentUser() {
   const session = await getServerSession(authOptions)
